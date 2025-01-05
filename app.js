@@ -1,36 +1,69 @@
-require("dotenv").config(); // Carrega variáveis de ambiente
-const express = require("express");
-const http = require("http");
-const mongoose = require("mongoose");
-const socketHandler = require("./socket.js");
-const settings = require("./config/settings");
+/**
+ * app.js
+ * Use `app.js` to run your app.
+ * To start the server, run: `node app.js`.
+ */
 
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config({ path:'.env' });
+global.__basedir = __dirname;
+const postmanToOpenApi = require('postman-to-openapi');
+const YAML = require('yamljs');
+const swaggerUi = require('swagger-ui-express');
+require('./config/db');
+const listEndpoints = require('express-list-endpoints');
+const passport = require('passport');
+
+let logger = require('morgan');
+const { clientPassportStrategy } = require('./config/clientPassportStrategy');
+const { adminPassportStrategy } = require('./config/adminPassportStrategy');
 const app = express();
-const server = http.createServer(app);
+const httpServer = require('http').createServer(app);
+const corsOptions = { origin: process.env.ALLOW_ORIGIN, };
+app.use(cors(corsOptions));
 
-// Configuração do banco de dados
-mongoose
-  .connect(settings.dbUri, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("Banco de dados conectado"))
-  .catch((err) => {
-    console.error("Erro ao conectar ao banco de dados:", err);
-    process.exit(1); // Encerra o processo se não conseguir conectar
-  });
+//template engine
+app.set('view engine', 'ejs'); 
+app.set('views', path.join(__dirname, 'views'));
+app.use(require('./utils/response/responseHandler'));
 
-// Middleware básico (se necessário)
+//all routes 
+const routes =  require('./routes');
+
+clientPassportStrategy(passport);
+adminPassportStrategy(passport);
+
+app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(routes);
 
-// Rotas padrão (se necessário, ex. API de controle ou status)
-app.get("/", (req, res) => {
-  res.send("Servidor ativo e rodando");
+//swagger Documentation
+postmanToOpenApi('postman/postman-collection.json', path.join('postman/swagger.yml'), { defaultTag: 'General' }).then(data => {
+  let result = YAML.load('postman/swagger.yml');
+  result.servers[0].url = '/';
+  app.use('/swagger', swaggerUi.serve, swaggerUi.setup(result));
+}).catch(e=>{
+  console.log('Swagger Generation stopped due to some error');
 });
 
-// Inicialização do servidor Socket
-socketHandler(server);
-
-// Inicialização do servidor HTTP
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+app.get('/', (req, res) => {
+  res.render('index');
 });
+
+if (process.env.NODE_ENV !== 'test' ) {
+
+  const seeder = require('./seeders');
+  const allRegisterRoutes = listEndpoints(app);
+  seeder(allRegisterRoutes).then(()=>{console.log('Seeding done.');});
+  require('./services/socket/socket')(httpServer);
+  httpServer.listen(process.env.PORT,()=>{
+    console.log(`your application is running on ${process.env.PORT}`);
+  });
+} else {
+  module.exports = app;
+}

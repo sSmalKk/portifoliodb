@@ -1,5 +1,5 @@
-const dbService = require('./utils/dbService');
-const User = require('./model/User');
+const dbService = require('../../utils/dbService');
+const User = require('../../model/User');
 
 /**
  * Valida a posição de um jogador com base em velocidade, tempo e posição anterior.

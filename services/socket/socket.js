@@ -1,37 +1,26 @@
-const User = require("./model/User");
+const { validatePosition, teleportPlayer } = require("./validationService");
+const settings = require("../../config/settings");
+const User = require("../../model/User");
+const dbService = require("../../utils/dbService");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 module.exports = function (httpServer) {
   const io = require("socket.io")(httpServer, { cors: { origin: "*" } });
 
   const players = {}; // Armazena a posição e socketId dos jogadores
 
-  io.on("connection", async (socket) => {
+  io.on("connection", (socket) => {
     console.log("Player connected:", socket.id);
 
-    // Cria ou registra o jogador no banco de dados
-    const username = `Player_${socket.id.slice(0, 6)}`; // Nome genérico
-    let user = await User.findOneAndUpdate(
-      { username },
-      { lastConnected: Date.now(), isActive: true },
-      { upsert: true, new: true }
-    );
-
-    players[user._id] = { socketId: socket.id, position: user.position, rotation: user.rotation };
-
-    socket.on("updatePosition", async ({ position, rotation }) => {
-      if (!position || !rotation) {
-        console.error("Position or rotation is invalid");
+    socket.on("updatePosition", ({ userId, position, rotation }) => {
+      if (!userId || !ObjectId.isValid(userId)) {
+        console.error("ID de usuário inválido:", userId);
         return;
       }
 
-      const userId = socket.id; // Identificador único do socket
+      // Atualiza a posição do jogador no servidor
       players[userId] = { socketId: socket.id, position, rotation };
-
-      // Atualiza a posição do jogador no banco
-      await User.findOneAndUpdate(
-        { _id: user._id },
-        { position, rotation, lastConnected: Date.now() }
-      );
 
       const visiblePlayers = [];
       for (const [otherUserId, otherPlayer] of Object.entries(players)) {
@@ -43,13 +32,14 @@ module.exports = function (httpServer) {
             Math.pow(otherPlayer.position[2] - position[2], 2)
         );
 
-        if (distance <= 100) {
+        if (distance <= 100) { // Distância de renderização
           visiblePlayers.push({
             id: otherUserId,
             position: otherPlayer.position,
             rotation: otherPlayer.rotation,
           });
 
+          // Atualiza o jogador dentro do alcance do outro
           const otherSocketId = otherPlayer.socketId;
           if (otherSocketId) {
             io.to(otherSocketId).emit("updateVisiblePlayers", [
@@ -61,16 +51,18 @@ module.exports = function (httpServer) {
         }
       }
 
+      // Envia jogadores visíveis para o jogador que atualizou
       io.to(socket.id).emit("updateVisiblePlayers", visiblePlayers);
     });
 
-    socket.on("disconnect", async () => {
+    socket.on("disconnect", () => {
       console.log("Player disconnected:", socket.id);
-      await User.findOneAndUpdate(
-        { _id: user._id },
-        { isActive: false, lastConnected: Date.now() }
-      );
-      delete players[user._id];
+      for (const userId in players) {
+        if (players[userId].socketId === socket.id) {
+          delete players[userId];
+          break;
+        }
+      }
     });
   });
 };
