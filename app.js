@@ -55,15 +55,17 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-if (process.env.NODE_ENV !== 'test' ) {
+const allRegisterRoutes = listEndpoints(app);
+const seeder = require('./seeders');
 
-  const seeder = require('./seeders');
-  const allRegisterRoutes = listEndpoints(app);
-  seeder(allRegisterRoutes).then(()=>{console.log('Seeding done.');});
-  require('./services/socket/socket')(httpServer);
-  httpServer.listen(process.env.PORT,()=>{
-    console.log(`your application is running on ${process.env.PORT}`);
-  });
-} else {
-  module.exports = app;
-}
+seeder(allRegisterRoutes).then(() => {
+  console.log('Seeding done.');
+});
+
+require('./services/socket/socket')(httpServer);
+
+httpServer.listen(process.env.PORT, () => {
+  console.log(`your application is running on ${process.env.PORT}`);
+});
+
+module.exports = app;
