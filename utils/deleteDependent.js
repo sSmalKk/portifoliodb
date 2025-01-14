@@ -3,6 +3,11 @@
  * @description :: exports deleteDependent service for project.
  */
 
+let Entitybody = require('../model/entitybody');
+let Organ = require('../model/Organ');
+let Member = require('../model/Member');
+let Blog = require('../model/Blog');
+let Comment = require('../model/Comment');
 let Part = require('../model/part');
 let Custommodel = require('../model/custommodel');
 let Pack = require('../model/pack');
@@ -30,6 +35,63 @@ let ProjectRoute = require('../model/projectRoute');
 let RouteRole = require('../model/routeRole');
 let UserRole = require('../model/userRole');
 let dbService = require('.//dbService');
+
+const deleteEntitybody = async (filter) =>{
+  try {
+    let response  = await dbService.deleteMany(Entitybody,filter);
+    return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const deleteOrgan = async (filter) =>{
+  try {
+    let response  = await dbService.deleteMany(Organ,filter);
+    return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const deleteMember = async (filter) =>{
+  try {
+    let response  = await dbService.deleteMany(Member,filter);
+    return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const deleteBlog = async (filter) =>{
+  try {
+    let response  = await dbService.deleteMany(Blog,filter);
+    return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const deleteComment = async (filter) =>{
+  try {
+    let comment = await dbService.findMany(Comment,filter);
+    if (comment && comment.length){
+      comment = comment.map((obj) => obj.id);
+
+      const CommentFilter = { $or: [{ parentItem : { $in : comment } }] };
+      const CommentCnt = await dbService.deleteMany(Comment,CommentFilter);
+
+      let deleted  = await dbService.deleteMany(Comment,filter);
+      let response = { Comment :CommentCnt, };
+      return response; 
+    } else {
+      return {  comment : 0 };
+    }
+
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
 
 const deletePart = async (filter) =>{
   try {
@@ -277,6 +339,21 @@ const deleteUser = async (filter) =>{
     if (user && user.length){
       user = user.map((obj) => obj.id);
 
+      const entitybodyFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const entitybodyCnt = await dbService.deleteMany(Entitybody,entitybodyFilter);
+
+      const OrganFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const OrganCnt = await dbService.deleteMany(Organ,OrganFilter);
+
+      const MemberFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const MemberCnt = await dbService.deleteMany(Member,MemberFilter);
+
+      const BlogFilter = { $or: [{ updatedBy : { $in : user } },{ addedBy : { $in : user } }] };
+      const BlogCnt = await dbService.deleteMany(Blog,BlogFilter);
+
+      const CommentFilter = { $or: [{ updatedBy : { $in : user } },{ addedBy : { $in : user } }] };
+      const CommentCnt = await dbService.deleteMany(Comment,CommentFilter);
+
       const partFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const partCnt = await dbService.deleteMany(Part,partFilter);
 
@@ -351,6 +428,11 @@ const deleteUser = async (filter) =>{
 
       let deleted  = await dbService.deleteMany(User,filter);
       let response = {
+        entitybody :entitybodyCnt,
+        Organ :OrganCnt,
+        Member :MemberCnt,
+        Blog :BlogCnt,
+        Comment :CommentCnt,
         part :partCnt,
         custommodel :custommodelCnt,
         pack :packCnt,
@@ -456,6 +538,61 @@ const deleteUserRole = async (filter) =>{
   try {
     let response  = await dbService.deleteMany(UserRole,filter);
     return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const countEntitybody = async (filter) =>{
+  try {
+    const entitybodyCnt =  await dbService.count(Entitybody,filter);
+    return { entitybody : entitybodyCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const countOrgan = async (filter) =>{
+  try {
+    const OrganCnt =  await dbService.count(Organ,filter);
+    return { Organ : OrganCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const countMember = async (filter) =>{
+  try {
+    const MemberCnt =  await dbService.count(Member,filter);
+    return { Member : MemberCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const countBlog = async (filter) =>{
+  try {
+    const BlogCnt =  await dbService.count(Blog,filter);
+    return { Blog : BlogCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const countComment = async (filter) =>{
+  try {
+    let comment = await dbService.findMany(Comment,filter);
+    if (comment && comment.length){
+      comment = comment.map((obj) => obj.id);
+
+      const CommentFilter = { $or: [{ parentItem : { $in : comment } }] };
+      const CommentCnt =  await dbService.count(Comment,CommentFilter);
+
+      let response = { Comment : CommentCnt, };
+      return response; 
+    } else {
+      return {  comment : 0 };
+    }
   } catch (error){
     throw new Error(error.message);
   }
@@ -697,6 +834,21 @@ const countUser = async (filter) =>{
     if (user && user.length){
       user = user.map((obj) => obj.id);
 
+      const entitybodyFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const entitybodyCnt =  await dbService.count(Entitybody,entitybodyFilter);
+
+      const OrganFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const OrganCnt =  await dbService.count(Organ,OrganFilter);
+
+      const MemberFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const MemberCnt =  await dbService.count(Member,MemberFilter);
+
+      const BlogFilter = { $or: [{ updatedBy : { $in : user } },{ addedBy : { $in : user } }] };
+      const BlogCnt =  await dbService.count(Blog,BlogFilter);
+
+      const CommentFilter = { $or: [{ updatedBy : { $in : user } },{ addedBy : { $in : user } }] };
+      const CommentCnt =  await dbService.count(Comment,CommentFilter);
+
       const partFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const partCnt =  await dbService.count(Part,partFilter);
 
@@ -770,6 +922,11 @@ const countUser = async (filter) =>{
       const userRoleCnt =  await dbService.count(UserRole,userRoleFilter);
 
       let response = {
+        entitybody : entitybodyCnt,
+        Organ : OrganCnt,
+        Member : MemberCnt,
+        Blog : BlogCnt,
+        Comment : CommentCnt,
         part : partCnt,
         custommodel : custommodelCnt,
         pack : packCnt,
@@ -870,6 +1027,62 @@ const countUserRole = async (filter) =>{
   try {
     const userRoleCnt =  await dbService.count(UserRole,filter);
     return { userRole : userRoleCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const softDeleteEntitybody = async (filter,updateBody) =>{  
+  try {
+    const entitybodyCnt =  await dbService.updateMany(Entitybody,filter);
+    return { entitybody : entitybodyCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const softDeleteOrgan = async (filter,updateBody) =>{  
+  try {
+    const OrganCnt =  await dbService.updateMany(Organ,filter);
+    return { Organ : OrganCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const softDeleteMember = async (filter,updateBody) =>{  
+  try {
+    const MemberCnt =  await dbService.updateMany(Member,filter);
+    return { Member : MemberCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const softDeleteBlog = async (filter,updateBody) =>{  
+  try {
+    const BlogCnt =  await dbService.updateMany(Blog,filter);
+    return { Blog : BlogCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const softDeleteComment = async (filter,updateBody) =>{  
+  try {
+    let comment = await dbService.findMany(Comment,filter, { id:1 });
+    if (comment.length){
+      comment = comment.map((obj) => obj.id);
+
+      const CommentFilter = { '$or': [{ parentItem : { '$in' : comment } }] };
+      const CommentCnt = await dbService.updateMany(Comment,CommentFilter,updateBody);
+      let updated = await dbService.updateMany(Comment,filter,updateBody);
+
+      let response = { Comment :CommentCnt, };
+      return response;
+    } else {
+      return {  comment : 0 };
+    }
   } catch (error){
     throw new Error(error.message);
   }
@@ -1116,6 +1329,21 @@ const softDeleteUser = async (filter,updateBody) =>{
     if (user.length){
       user = user.map((obj) => obj.id);
 
+      const entitybodyFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
+      const entitybodyCnt = await dbService.updateMany(Entitybody,entitybodyFilter,updateBody);
+
+      const OrganFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
+      const OrganCnt = await dbService.updateMany(Organ,OrganFilter,updateBody);
+
+      const MemberFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
+      const MemberCnt = await dbService.updateMany(Member,MemberFilter,updateBody);
+
+      const BlogFilter = { '$or': [{ updatedBy : { '$in' : user } },{ addedBy : { '$in' : user } }] };
+      const BlogCnt = await dbService.updateMany(Blog,BlogFilter,updateBody);
+
+      const CommentFilter = { '$or': [{ updatedBy : { '$in' : user } },{ addedBy : { '$in' : user } }] };
+      const CommentCnt = await dbService.updateMany(Comment,CommentFilter,updateBody);
+
       const partFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
       const partCnt = await dbService.updateMany(Part,partFilter,updateBody);
 
@@ -1190,6 +1418,11 @@ const softDeleteUser = async (filter,updateBody) =>{
       let updated = await dbService.updateMany(User,filter,updateBody);
 
       let response = {
+        entitybody :entitybodyCnt,
+        Organ :OrganCnt,
+        Member :MemberCnt,
+        Blog :BlogCnt,
+        Comment :CommentCnt,
         part :partCnt,
         custommodel :custommodelCnt,
         pack :packCnt,
@@ -1298,6 +1531,11 @@ const softDeleteUserRole = async (filter,updateBody) =>{
 };
 
 module.exports = {
+  deleteEntitybody,
+  deleteOrgan,
+  deleteMember,
+  deleteBlog,
+  deleteComment,
   deletePart,
   deleteCustommodel,
   deletePack,
@@ -1324,6 +1562,11 @@ module.exports = {
   deleteProjectRoute,
   deleteRouteRole,
   deleteUserRole,
+  countEntitybody,
+  countOrgan,
+  countMember,
+  countBlog,
+  countComment,
   countPart,
   countCustommodel,
   countPack,
@@ -1350,6 +1593,11 @@ module.exports = {
   countProjectRoute,
   countRouteRole,
   countUserRole,
+  softDeleteEntitybody,
+  softDeleteOrgan,
+  softDeleteMember,
+  softDeleteBlog,
+  softDeleteComment,
   softDeletePart,
   softDeleteCustommodel,
   softDeletePack,

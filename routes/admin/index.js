@@ -6,6 +6,11 @@
 const express =  require('express');
 const router =  express.Router();
 router.use('/admin/auth',require('./auth'));
+router.use(require('./entitybodyRoutes'));
+router.use(require('./OrganRoutes'));
+router.use(require('./MemberRoutes'));
+router.use(require('./BlogRoutes'));
+router.use(require('./CommentRoutes'));
 router.use(require('./partRoutes'));
 router.use(require('./custommodelRoutes'));
 router.use(require('./packRoutes'));
