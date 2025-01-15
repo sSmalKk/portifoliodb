@@ -1,11 +1,9 @@
-const restrictedChatIds = [convertToObjectId(1)]; // IDs restritos (Chat Console)
 
 /**
  * Verifica se o chat pertence à lista de IDs restritos.
  * @param {string | ObjectId} id 
  * @return {boolean} 
  */
-const isRestrictedChat = (id) => restrictedChatIds.includes(id.toString());
 
 /**
  * @description : create document of Chat in mongodb collection.
