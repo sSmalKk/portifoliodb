@@ -19,17 +19,7 @@ const seedChats = async () => {
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-      },
-      {
-        _id: convertToObjectId(1), // ID do Console
-        name: "Console",
-        code: "console",
-        admin: "system",
-        customer: [], // Nenhum cliente associado
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      }
     ];
 
     for (const chat of chats) {
