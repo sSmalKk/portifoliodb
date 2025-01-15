@@ -5,64 +5,59 @@ const dbService = require("../../utils/dbService");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
-module.exports = function (httpServer) {
-  const io = require("socket.io")(httpServer, { cors: { origin: "*" } });
 
-  const players = {}; // Armazena a posição e socketId dos jogadores
+module.exports = (io, socket) => {
+  const players = {}; // Armazena dados dos jogadores conectados
 
-  io.on("connection", (socket) => {
-    console.log("Player connected:", socket.id);
+  console.log("SocketGame inicializado para:", socket.id);
 
-    socket.on("updatePosition", ({ userId, position, rotation }) => {
-      if (!userId || !ObjectId.isValid(userId)) {
-        console.error("ID de usuário inválido:", userId);
-        return;
-      }
+  socket.on("updatePosition", ({ userId, position, rotation }) => {
+    if (!userId || !ObjectId.isValid(userId)) {
+      console.error("ID de usuário inválido:", userId);
+      return;
+    }
 
-      // Atualiza a posição do jogador no servidor
-      players[userId] = { socketId: socket.id, position, rotation };
+    // Atualiza a posição do jogador no servidor
+    players[userId] = { socketId: socket.id, position, rotation };
 
-      const visiblePlayers = [];
-      for (const [otherUserId, otherPlayer] of Object.entries(players)) {
-        if (otherUserId === userId) continue;
+    const visiblePlayers = [];
+    for (const [otherUserId, otherPlayer] of Object.entries(players)) {
+      if (otherUserId === userId) continue;
 
-        const distance = Math.sqrt(
-          Math.pow(otherPlayer.position[0] - position[0], 2) +
-            Math.pow(otherPlayer.position[1] - position[1], 2) +
-            Math.pow(otherPlayer.position[2] - position[2], 2)
-        );
+      const distance = Math.sqrt(
+        Math.pow(otherPlayer.position[0] - position[0], 2) +
+        Math.pow(otherPlayer.position[1] - position[1], 2) +
+        Math.pow(otherPlayer.position[2] - position[2], 2)
+      );
 
-        if (distance <= 100) { // Distância de renderização
-          visiblePlayers.push({
-            id: otherUserId,
-            position: otherPlayer.position,
-            rotation: otherPlayer.rotation,
-          });
+      if (distance <= 100) { // Distância de renderização
+        visiblePlayers.push({
+          id: otherUserId,
+          position: otherPlayer.position,
+          rotation: otherPlayer.rotation,
+        });
 
-          // Atualiza o jogador dentro do alcance do outro
-          const otherSocketId = otherPlayer.socketId;
-          if (otherSocketId) {
-            io.to(otherSocketId).emit("updateVisiblePlayers", [
-              ...(players[userId]
-                ? [{ id: userId, position, rotation }]
-                : []),
-            ]);
-          }
+        const otherSocketId = otherPlayer.socketId;
+        if (otherSocketId) {
+          io.to(otherSocketId).emit("updateVisiblePlayers", [
+            ...(players[userId]
+              ? [{ id: userId, position, rotation }]
+              : []),
+          ]);
         }
       }
+    }
 
-      // Envia jogadores visíveis para o jogador que atualizou
-      io.to(socket.id).emit("updateVisiblePlayers", visiblePlayers);
-    });
+    io.to(socket.id).emit("updateVisiblePlayers", visiblePlayers);
+  });
 
-    socket.on("disconnect", () => {
-      console.log("Player disconnected:", socket.id);
-      for (const userId in players) {
-        if (players[userId].socketId === socket.id) {
-          delete players[userId];
-          break;
-        }
+  socket.on("disconnect", () => {
+    console.log("Player disconnected:", socket.id);
+    for (const userId in players) {
+      if (players[userId].socketId === socket.id) {
+        delete players[userId];
+        break;
       }
-    });
+    }
   });
 };
