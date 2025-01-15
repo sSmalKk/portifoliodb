@@ -9,7 +9,7 @@ const ObjectId = mongoose.Types.ObjectId;
 module.exports = (io, socket) => {
   const players = {}; // Armazena dados dos jogadores conectados
 
-  console.log("SocketGame inicializado para:", socket.id);
+  console.log("SocketGame inicializado para:", socket);
 
   socket.on("updatePosition", ({ userId, position, rotation }) => {
     if (!userId || !ObjectId.isValid(userId)) {
