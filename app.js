@@ -8,7 +8,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
-dotenv.config({ path:'.env' });
+dotenv.config({ path: '.env' });
 global.__basedir = __dirname;
 const postmanToOpenApi = require('postman-to-openapi');
 const YAML = require('yamljs');
@@ -26,12 +26,12 @@ const corsOptions = { origin: process.env.ALLOW_ORIGIN, };
 app.use(cors(corsOptions));
 
 //template engine
-app.set('view engine', 'ejs'); 
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(require('./utils/response/responseHandler'));
 
 //all routes 
-const routes =  require('./routes');
+const routes = require('./routes');
 
 clientPassportStrategy(passport);
 adminPassportStrategy(passport);
@@ -47,7 +47,7 @@ postmanToOpenApi('postman/postman-collection.json', path.join('postman/swagger.y
   let result = YAML.load('postman/swagger.yml');
   result.servers[0].url = '/';
   app.use('/swagger', swaggerUi.serve, swaggerUi.setup(result));
-}).catch(e=>{
+}).catch(e => {
   console.log('Swagger Generation stopped due to some error');
 });
 
@@ -55,13 +55,14 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-if (process.env.NODE_ENV !== 'test' ) {
+if (process.env.NODE_ENV !== 'test') {
 
   const seeder = require('./seeders');
   const allRegisterRoutes = listEndpoints(app);
-  seeder(allRegisterRoutes).then(()=>{console.log('Seeding done.');});
-  require('./services/socket/socket')(httpServer);
-  httpServer.listen(process.env.PORT,()=>{
+  seeder(allRegisterRoutes).then(() => { console.log('Seeding done.'); });
+  require('./services/socket/socketchat')(httpServer);
+  require('./services/socket/socketgame')(httpServer);
+  httpServer.listen(process.env.PORT, () => {
     console.log(`your application is running on ${process.env.PORT}`);
   });
 } else {
