@@ -5,27 +5,28 @@
 
 const socketData = require('../../model/socketData');
 const dbService = require('../../utils/dbService');
-module.exports = function (httpServer){
-  const io = require('socket.io')(httpServer,{ cors:{ origin: '*' } });
-  io.on('connection', (socket) => {
-    io.on('event', async (data) => {
-      if (data.message){
-        const user = await dbService.findOne(socketData,{ message:data.message });
-        if (user){
-          await dbService.updateOne(socketData,{ message:data.message },{ socketId:socket.id });
-        }
-        else {
-          const input = new socketData({
-            message:data.message,
-            socketId: socket.id
-          });
-          await dbService.create(socketData,input);
-        }
-      }
-      else {
-        const input = new socketData({ socketId: socket.id });
-        await dbService.create(socketData,input);
-      }
-    });
+module.exports = (io, socket) => {
+  console.log("SocketChat inicializado para:", socket.id);
+
+  socket.on("joinChat", (chatId) => {
+    socket.join(chatId);
+    console.log(`Cliente ${socket.id} entrou no chat: ${chatId}`);
+  });
+
+  socket.on("sendMessage", ({ chatId, message }) => {
+    if (!chatId || !message) return;
+    const newMessage = {
+      sender: socket.id,
+      message,
+      createdAt: new Date(),
+    };
+
+    io.to(chatId).emit("receiveMessage", newMessage);
+    console.log(`Mensagem enviada no chat ${chatId}:`, newMessage);
+  });
+
+  socket.on("leaveChat", (chatId) => {
+    socket.leave(chatId);
+    console.log(`Cliente ${socket.id} saiu do chat: ${chatId}`);
   });
 };
