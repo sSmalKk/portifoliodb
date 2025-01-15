@@ -8,13 +8,16 @@ const seedChats = async () => {
   try {
     console.log("🔄 Iniciando seed dos chats...");
 
+    // ID do administrador "system"
+    const systemAdminId = convertToObjectId(1); // Ou use um ID estático válido se necessário
+
     // Definir os dados para os chats iniciais
     const chats = [
       {
         _id: convertToObjectId(0), // ID do Chat Global
         name: "Chat Global",
         code: "global",
-        admin: "system",
+        admin: systemAdminId, // Usar um ObjectId válido
         customer: [], // Nenhum cliente associado
         isActive: true,
         createdAt: new Date(),
