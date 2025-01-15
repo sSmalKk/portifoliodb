@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const ChatModel = require('../model/chat');
+const ChatModel = require('../model/Chat');
 
 // Função para converter IDs numéricos ou strings para ObjectId
 const convertToObjectId = (id) => new mongoose.Types.ObjectId(id.toString().padStart(24, '0'));
