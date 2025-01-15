@@ -3,6 +3,7 @@
  * @description :: exports deleteDependent service for project.
  */
 
+let Console = require('../model/console');
 let Entitybody = require('../model/entitybody');
 let Organ = require('../model/Organ');
 let Member = require('../model/Member');
@@ -35,6 +36,15 @@ let ProjectRoute = require('../model/projectRoute');
 let RouteRole = require('../model/routeRole');
 let UserRole = require('../model/userRole');
 let dbService = require('.//dbService');
+
+const deleteConsole = async (filter) =>{
+  try {
+    let response  = await dbService.deleteMany(Console,filter);
+    return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
 
 const deleteEntitybody = async (filter) =>{
   try {
@@ -339,6 +349,9 @@ const deleteUser = async (filter) =>{
     if (user && user.length){
       user = user.map((obj) => obj.id);
 
+      const consoleFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const consoleCnt = await dbService.deleteMany(Console,consoleFilter);
+
       const entitybodyFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const entitybodyCnt = await dbService.deleteMany(Entitybody,entitybodyFilter);
 
@@ -428,6 +441,7 @@ const deleteUser = async (filter) =>{
 
       let deleted  = await dbService.deleteMany(User,filter);
       let response = {
+        console :consoleCnt,
         entitybody :entitybodyCnt,
         Organ :OrganCnt,
         Member :MemberCnt,
@@ -538,6 +552,15 @@ const deleteUserRole = async (filter) =>{
   try {
     let response  = await dbService.deleteMany(UserRole,filter);
     return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const countConsole = async (filter) =>{
+  try {
+    const consoleCnt =  await dbService.count(Console,filter);
+    return { console : consoleCnt };
   } catch (error){
     throw new Error(error.message);
   }
@@ -834,6 +857,9 @@ const countUser = async (filter) =>{
     if (user && user.length){
       user = user.map((obj) => obj.id);
 
+      const consoleFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const consoleCnt =  await dbService.count(Console,consoleFilter);
+
       const entitybodyFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const entitybodyCnt =  await dbService.count(Entitybody,entitybodyFilter);
 
@@ -922,6 +948,7 @@ const countUser = async (filter) =>{
       const userRoleCnt =  await dbService.count(UserRole,userRoleFilter);
 
       let response = {
+        console : consoleCnt,
         entitybody : entitybodyCnt,
         Organ : OrganCnt,
         Member : MemberCnt,
@@ -1027,6 +1054,15 @@ const countUserRole = async (filter) =>{
   try {
     const userRoleCnt =  await dbService.count(UserRole,filter);
     return { userRole : userRoleCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+
+const softDeleteConsole = async (filter,updateBody) =>{  
+  try {
+    const consoleCnt =  await dbService.updateMany(Console,filter);
+    return { console : consoleCnt };
   } catch (error){
     throw new Error(error.message);
   }
@@ -1329,6 +1365,9 @@ const softDeleteUser = async (filter,updateBody) =>{
     if (user.length){
       user = user.map((obj) => obj.id);
 
+      const consoleFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
+      const consoleCnt = await dbService.updateMany(Console,consoleFilter,updateBody);
+
       const entitybodyFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
       const entitybodyCnt = await dbService.updateMany(Entitybody,entitybodyFilter,updateBody);
 
@@ -1418,6 +1457,7 @@ const softDeleteUser = async (filter,updateBody) =>{
       let updated = await dbService.updateMany(User,filter,updateBody);
 
       let response = {
+        console :consoleCnt,
         entitybody :entitybodyCnt,
         Organ :OrganCnt,
         Member :MemberCnt,
@@ -1531,6 +1571,7 @@ const softDeleteUserRole = async (filter,updateBody) =>{
 };
 
 module.exports = {
+  deleteConsole,
   deleteEntitybody,
   deleteOrgan,
   deleteMember,
@@ -1562,6 +1603,7 @@ module.exports = {
   deleteProjectRoute,
   deleteRouteRole,
   deleteUserRole,
+  countConsole,
   countEntitybody,
   countOrgan,
   countMember,
@@ -1593,6 +1635,7 @@ module.exports = {
   countProjectRoute,
   countRouteRole,
   countUserRole,
+  softDeleteConsole,
   softDeleteEntitybody,
   softDeleteOrgan,
   softDeleteMember,

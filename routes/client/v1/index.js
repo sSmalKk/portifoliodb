@@ -6,6 +6,7 @@
 const express =  require('express');
 const router =  express.Router();
 router.use('/client/auth',require('./auth'));
+router.use(require('./consoleRoutes'));
 router.use(require('./entitybodyRoutes'));
 router.use(require('./OrganRoutes'));
 router.use(require('./MemberRoutes'));
