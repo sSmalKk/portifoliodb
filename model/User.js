@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const { USER_TYPES } = require('../constants/authConstant');
 const { convertObjectToEnum } = require('../utils/common');
 const authConstantEnum = require('../constants/authConstant');
-        
+
 const myCustomLabels = {
   totalDocs: 'itemCount',
   docs: 'data',
@@ -27,90 +27,92 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
-    username:{ type:String },
+    username: { type: String },
 
-    password:{ type:String },
+    password: { type: String },
 
-    email:{ type:String },
+    email: { type: String },
 
-    name:{ type:String },
+    name: { type: String },
 
-    isActive:{ type:Boolean },
+    isActive: { type: Boolean },
 
-    createdAt:{ type:Date },
+    createdAt: { type: Date },
 
-    updatedAt:{ type:Date },
+    updatedAt: { type: Date },
 
-    addedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'User'
+    addedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
     },
 
-    updatedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'User'
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
     },
 
-    userType:{
-      type:Number,
-      enum:convertObjectToEnum(USER_TYPES),
-      required:true
+    userType: {
+      type: Number,
+      enum: convertObjectToEnum(USER_TYPES),
+      required: true
     },
 
-    x:{ type:Number },
+    x: { type: Number },
 
-    y:{ type:Number },
+    y: { type: Number },
 
-    z:{ type:Number },
+    z: { type: Number },
 
-    vx:{ type:String },
+    vx: { type: String },
 
-    vy:{ type:String },
+    vy: { type: String },
 
-    vz:{ type:String },
+    vz: { type: String },
 
-    rx:{ type:String },
+    rx: { type: String },
 
-    ry:{ type:String },
+    ry: { type: String },
 
-    rz:{ type:String },
+    rz: { type: String },
 
-    chat:{ type:Array },
+    chat: { type: Array },
 
-    mobileNo:{ type:String },
+    config: { type: Array },
 
-    isDeleted:{ type:Boolean },
+    mobileNo: { type: String },
 
-    resetPasswordLink:{
-      code:String,
-      expireTime:Date
+    isDeleted: { type: Boolean },
+
+    resetPasswordLink: {
+      code: String,
+      expireTime: Date
     },
 
-    loginRetryLimit:{
-      type:Number,
-      default:0
+    loginRetryLimit: {
+      type: Number,
+      default: 0
     },
 
-    loginReactiveTime:{ type:Date }
+    loginReactiveTime: { type: Date }
   }
-  ,{ 
-    timestamps: { 
-      createdAt: 'createdAt', 
-      updatedAt: 'updatedAt' 
-    } 
+  , {
+    timestamps: {
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt'
+    }
   }
 );
 schema.pre('save', async function (next) {
   this.isDeleted = false;
   this.isActive = true;
-  if (this.password){
+  if (this.password) {
     this.password = await bcrypt.hash(this.password, 8);
   }
   next();
 });
 
 schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length){
+  if (docs && docs.length) {
     for (let index = 0; index < docs.length; index++) {
       const element = docs[index];
       element.isDeleted = false;
@@ -126,14 +128,14 @@ schema.methods.isPasswordMatch = async function (password) {
 };
 schema.method('toJSON', function () {
   const {
-    _id, __v, ...object 
-  } = this.toObject({ virtuals:true });
+    _id, __v, ...object
+  } = this.toObject({ virtuals: true });
   object.id = _id;
   delete object.password;
-     
+
   return object;
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const User = mongoose.model('User',schema);
+const User = mongoose.model('User', schema);
 module.exports = User;
