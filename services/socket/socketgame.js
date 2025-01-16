@@ -11,7 +11,7 @@ module.exports = (io, socket) => {
   }
 
   const players = {}; // Armazena dados dos jogadores conectados
-  console.log("SocketGame inicializado para:", socket.id);
+  console.log("SocketGame inicializado para:", socket);
 
   const calculateDistance = (pos1, pos2) => {
     return Math.sqrt(
