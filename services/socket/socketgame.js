@@ -1,10 +1,13 @@
-module.exports = (io, socket) => {
-  if (!socket || !socket.id) {
-    console.error('Socket não inicializado corretamente');
-    return;
-  }
+const { validatePosition, teleportPlayer } = require("./validationService");
+const settings = require("../../config/settings");
+const User = require("../../model/User");
+const dbService = require("../../utils/dbService");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
+module.exports = (io, socket) => {
   const players = {}; // Armazena dados dos jogadores conectados
+
   console.log("SocketGame inicializado para:", socket.id);
 
   const calculateDistance = (pos1, pos2) => {
@@ -17,10 +20,12 @@ module.exports = (io, socket) => {
 
   const updateVisiblePlayers = (userId, position, rotation) => {
     const visiblePlayers = [];
+
     for (const [otherUserId, otherPlayer] of Object.entries(players)) {
       if (otherUserId === userId) continue;
 
       const distance = calculateDistance(otherPlayer.position, position);
+
       if (distance <= 100) { // Distância de renderização
         visiblePlayers.push({
           id: otherUserId,
@@ -38,6 +43,7 @@ module.exports = (io, socket) => {
         }
       }
     }
+
     io.to(socket.id).emit("updateVisiblePlayers", visiblePlayers);
   };
 
@@ -52,7 +58,9 @@ module.exports = (io, socket) => {
       return;
     }
 
+    // Atualiza a posição do jogador
     players[userId] = { socketId: socket.id, position, rotation };
+
     updateVisiblePlayers(userId, position, rotation);
   });
 
