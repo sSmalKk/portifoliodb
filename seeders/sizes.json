@@ -1,5 +1,7 @@
 [
     {
+        "tickciclerate": 0,
+        "tickrate": 1,
         "id": 1,
         "name": "Universo Observável",
         "description": "Escala representando o Universo Observável.",
@@ -10,6 +12,8 @@
         "smallerID": 2
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 2,
         "name": "Superaglomerado de Galáxias (Laniakea)",
         "description": "Aglomerado de galáxias Laniakea, dividido em galáxias.",
@@ -20,6 +24,8 @@
         "smallerID": 3
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 3,
         "name": "Aglomerado de Galáxias",
         "description": "Conjunto de galáxias agrupadas gravitacionalmente.",
@@ -30,6 +36,8 @@
         "smallerID": 4
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 4,
         "name": "Galáxia (Via Láctea)",
         "description": "Representação de uma galáxia, como a Via Láctea.",
@@ -40,6 +48,8 @@
         "smallerID": 5
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 5,
         "name": "Sistema Solar",
         "description": "Sistema Solar, dividido em Unidades Astronômicas.",
@@ -50,6 +60,8 @@
         "smallerID": 6
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 6,
         "name": "Planeta Terra",
         "description": "Tamanho médio do Planeta Terra.",
@@ -60,6 +72,8 @@
         "smallerID": 7
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 7,
         "name": "Quilômetro",
         "description": "Unidade do sistema métrico, equivalente a 1000 metros.",
@@ -70,6 +84,8 @@
         "smallerID": 8
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 8,
         "name": "Decâmetro",
         "description": "Unidade do sistema métrico, equivalente a 10 metros.",
@@ -80,6 +96,8 @@
         "smallerID": 9
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 9,
         "name": "Metro",
         "description": "Unidade base do sistema métrico.",
@@ -90,6 +108,8 @@
         "smallerID": 10
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 10,
         "name": "Decímetro",
         "description": "Unidade do sistema métrico, equivalente a 0,1 metros.",
@@ -100,6 +120,8 @@
         "smallerID": 11
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 11,
         "name": "Centímetro",
         "description": "Unidade do sistema métrico, equivalente a 0,01 metros.",
@@ -110,6 +132,8 @@
         "smallerID": 12
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 12,
         "name": "Milímetro",
         "description": "Unidade do sistema métrico, equivalente a 0,001 metros.",
@@ -120,6 +144,8 @@
         "smallerID": 13
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 13,
         "name": "Célula Humana",
         "description": "Tamanho médio de uma célula humana.",
@@ -130,6 +156,8 @@
         "smallerID": 14
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 14,
         "name": "Molécula",
         "description": "Tamanho médio de uma molécula.",
@@ -140,6 +168,8 @@
         "smallerID": 15
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 15,
         "name": "Átomo",
         "description": "Tamanho médio de um átomo.",
@@ -150,6 +180,8 @@
         "smallerID": 16
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 16,
         "name": "Núcleo Atômico",
         "description": "Tamanho médio de um núcleo atômico.",
@@ -160,6 +192,8 @@
         "smallerID": 17
     },
     {
+        "tickciclerate": 0,
+        "tickrate": 0,
         "id": 17,
         "name": "Quarks",
         "description": "Tamanho estimado de quarks, não observados diretamente.",

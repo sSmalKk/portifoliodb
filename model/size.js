@@ -30,7 +30,10 @@ const schema = new Schema(
     largerID: { type: Schema.Types.ObjectId, ref: 'size', default: null }, // Referência ao tamanho maior
     smallerID: { type: Schema.Types.ObjectId, ref: 'size', default: null }, // Referência ao tamanho menor
     linkedSizes: [{ type: Schema.Types.ObjectId, ref: 'size', default: [] }], // Lista de tamanhos relacionados
-
+    tickrate: { type: Number },
+    tickciclerate: { type: Number },
+    tickcicle: { type: Date },
+    tick: { type: Number },
     isDeleted: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
 
