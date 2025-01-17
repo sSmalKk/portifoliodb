@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const { USER_TYPES } = require('../constants/authConstant');
 const { convertObjectToEnum } = require('../utils/common');
 const authConstantEnum = require('../constants/authConstant');
+const entity = require('./entity');
 
 const myCustomLabels = {
   totalDocs: 'itemCount',
@@ -57,29 +58,14 @@ const schema = new Schema(
       required: true
     },
 
-    x: { type: Number },
-
-    y: { type: Number },
-
-    z: { type: Number },
-
-    vx: { type: String },
-
-    vy: { type: String },
-
-    vz: { type: String },
-
-    rx: { type: String },
-
-    ry: { type: String },
-
-    rz: { type: String },
-
+    entity: { type: Schema.Types.ObjectId, ref: 'entity' },
     chat: { type: Array },
 
     config: { type: Array },
 
     mobileNo: { type: String },
+
+    SelectedSize: { type: Schema.Types.ObjectId, ref: 'Size' },
 
     isDeleted: { type: Boolean },
 
