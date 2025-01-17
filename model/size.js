@@ -23,17 +23,19 @@ mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
 
 const Schema = mongoose.Schema;
 
-// Definição do esquema de tamanho (size)
 const schema = new Schema(
   {
     name: { type: String, required: true }, // Nome do tamanho
     largerID: { type: Schema.Types.ObjectId, ref: 'size', default: null }, // Referência ao tamanho maior
     smallerID: { type: Schema.Types.ObjectId, ref: 'size', default: null }, // Referência ao tamanho menor
     linkedSizes: [{ type: Schema.Types.ObjectId, ref: 'size', default: [] }], // Lista de tamanhos relacionados
-    tickrate: { type: Number },
-    tickciclerate: { type: Number },
-    tickcicle: { type: Date },
-    tick: { type: Number },
+
+    // Variáveis relacionadas ao sistema de ticks
+    tickrate: { type: Number, default: 1 }, // Quantos ticks contam por segundo
+    tickciclerate: { type: Number, default: 60 }, // Quantos ticks para completar um ciclo
+    tickminimum: { type: String, default: 'seconds' }, // Valor mínimo do sistema
+    tickcicle: { type: Date, default: new Date() }, // Data do ciclo inicial
+    
     isDeleted: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
 
@@ -50,6 +52,8 @@ const schema = new Schema(
     },
   }
 );
+
+
 
 // Middleware para setar valores padrão antes de salvar
 schema.pre('save', async function (next) {
