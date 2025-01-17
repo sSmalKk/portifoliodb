@@ -1,51 +1,65 @@
 const socketIo = require('socket.io');
-const Tick = require('../model/Tick'); // Modelo de tick
-const chatModule = require('./chat');
-const gameModule = require('./game');
+const Tick = require('../../model/Tick'); // Modelo de tick
+const chatModule = require('./chat'); // Exemplo de módulo adicional
+require('dotenv').config();
 
-let tickCount = 0;
+const TICK_RATE = parseInt(process.env.TICK_RATE) || 1; // Ticks por segundo
+const TICK_COMPACT_RATE = parseInt(process.env.TICK_COMPACT_RATE) || 100; // Ticks para compactar
 
 module.exports = function (httpServer) {
   const io = socketIo(httpServer, { cors: { origin: '*' } });
 
+  let tickInterval;
+  let connectedUsers = {}; // Rastreia usuários conectados
+  let tickCount = 0;
+
   io.on('connection', (socket) => {
     console.log('Cliente conectado:', socket.id);
+    connectedUsers[socket.id] = socket;
 
-    // Atualiza o tick sempre que um cliente se conecta
-    tickCount++;
-
-    // Registra evento no log de ticks
-    Tick.findOneAndUpdate(
-      {},
-      { $inc: { tickCount: 1 } },
-      { new: true, upsert: true }
-    ).then((tickLog) => {
-      tickLog.addEvent({
-        tick: tickLog.tickCount,
-        type: 'connect',
-        data: { socketId: socket.id },
-      });
-    });
-
-    // Inicializa módulos específicos
-    chatModule(io, socket, tickCount);
-    gameModule(io, socket, tickCount);
+    // Atualiza tick quando um usuário se conecta
+    if (!tickInterval) {
+      startTickSystem(io);
+    }
 
     socket.on('disconnect', () => {
       console.log('Cliente desconectado:', socket.id);
+      delete connectedUsers[socket.id];
 
-      // Registra evento de desconexão no log de ticks
-      Tick.findOneAndUpdate(
+      if (Object.keys(connectedUsers).length === 0) {
+        stopTickSystem();
+      }
+    });
+
+    // Inicializa módulos adicionais
+    chatModule(io, socket, () => tickCount);
+  });
+
+  function startTickSystem(io) {
+    console.log('Iniciando sistema de ticks...');
+    tickInterval = setInterval(async () => {
+      tickCount++;
+      const tickLog = await Tick.findOneAndUpdate(
         {},
         { $inc: { tickCount: 1 } },
         { new: true, upsert: true }
-      ).then((tickLog) => {
-        tickLog.addEvent({
-          tick: tickLog.tickCount,
-          type: 'disconnect',
-          data: { socketId: socket.id },
-        });
-      });
-    });
-  });
+      );
+
+      // Compacta ticks após atingir o limite configurado
+      if (tickCount % TICK_COMPACT_RATE === 0) {
+        const users = Object.keys(connectedUsers);
+        tickLog.addActivityLog(tickCount - TICK_COMPACT_RATE + 1, tickCount, users);
+        console.log(`Compactação de ticks concluída: ${tickCount}`);
+      }
+
+      // Notifica todos os sockets conectados
+      io.emit('tickUpdate', tickCount);
+    }, 1000 / TICK_RATE);
+  }
+
+  function stopTickSystem() {
+    console.log('Parando sistema de ticks...');
+    clearInterval(tickInterval);
+    tickInterval = null;
+  }
 };

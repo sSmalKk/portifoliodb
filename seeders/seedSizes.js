@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const sizes = require('./sizes.json');
-const SizeModel = require('../model/size');
+const sizes = require('./sizes.json'); // JSON contendo os tamanhos
 const dbService = require('../utils/dbService');
+const SizeModel = require('../model/size'); // Modelo do banco para sizes
 
 // Função para converter IDs numéricos em ObjectId
 const convertToObjectId = (id) => new mongoose.Types.ObjectId(id.toString().padStart(24, '0'));
@@ -28,10 +28,6 @@ const syncSizes = async () => {
             largerID,
             smallerID,
             linkedSizes: [largerID, smallerID].filter(Boolean),
-            tickrate: size.tickrate || 1,
-            tickciclerate: size.tickciclerate || 60,
-            tickminimum: size.tickminimum || 'seconds',
-            tickcicle: new Date(),
             updatedAt: new Date(),
           },
           { upsert: true }

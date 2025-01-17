@@ -1,6 +1,6 @@
 // seedAdmin.js
 const mongoose = require('mongoose');
-const User = require('./model/User'); // Caminho para o modelo User
+const User = require('../model/User'); // Caminho para o modelo User
 const bcrypt = require('bcrypt');
 
 const seedAdmin = async () => {

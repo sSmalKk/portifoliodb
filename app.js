@@ -60,8 +60,8 @@ if (process.env.NODE_ENV !== 'test') {
   const seeder = require('./seeders');
   const allRegisterRoutes = listEndpoints(app);
   seeder(allRegisterRoutes).then(() => { console.log('Seeding done.'); });
-  require('./services/socket/socketchat')(httpServer);
-  require('./services/socket/socketgame')(httpServer);
+  require('./services/socket/')(httpServer);
+
   httpServer.listen(process.env.PORT, () => {
     console.log(`your application is running on ${process.env.PORT}`);
   });

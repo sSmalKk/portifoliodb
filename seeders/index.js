@@ -17,7 +17,7 @@ const seedElements = require('./elementsSeed');
 const seedMaterials = require('./seedMaterials');
 const seedChats = require('./seedChats');
 const seedAdmin = require('./seedAdmin');
-const createChatsForSizes = require('./seedChatsForSizes');
+const createChatsForSizes = require('./createChatsForSizes');
 /* seeds default users */
 async function seedUser() {
   try {

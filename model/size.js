@@ -30,12 +30,6 @@ const schema = new Schema(
     smallerID: { type: Schema.Types.ObjectId, ref: 'size', default: null }, // Referência ao tamanho menor
     linkedSizes: [{ type: Schema.Types.ObjectId, ref: 'size', default: [] }], // Lista de tamanhos relacionados
 
-    // Variáveis relacionadas ao sistema de ticks
-    tickrate: { type: Number, default: 1 }, // Quantos ticks contam por segundo
-    tickciclerate: { type: Number, default: 60 }, // Quantos ticks para completar um ciclo
-    tickminimum: { type: String, default: 'seconds' }, // Valor mínimo do sistema
-    tickcicle: { type: Date, default: new Date() }, // Data do ciclo inicial
-    
     isDeleted: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
 

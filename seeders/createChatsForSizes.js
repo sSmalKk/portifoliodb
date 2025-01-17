@@ -1,7 +1,7 @@
 // createChatsForSizes.js
 const mongoose = require('mongoose');
-const Chat = require('./model/Chat'); // Caminho para o modelo Chat
-const Size = require('./model/Size'); // Caminho para o modelo Size
+const Chat = require('../model/Chat'); // Caminho para o modelo Chat
+const Size = require('../model/size'); // Caminho para o modelo Size
 const seedAdmin = require('./seedAdmin');
 
 const createChatsForSizes = async () => {
