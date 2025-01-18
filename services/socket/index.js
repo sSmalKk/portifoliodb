@@ -1,4 +1,4 @@
-const ServerClock = require('../../model/ServerClock');
+const ServerClock = require('../../model/ServerClock').default;
 const PlayerClock = require('../../model/PlayerClock');
 const socketData = require('../../model/socketData');
 const dbService = require('../../utils/dbService');
