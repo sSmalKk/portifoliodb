@@ -1,30 +1,31 @@
-const dbService = require('../../utils/dbService');
-const socketData = require('../../model/socketData');
+/**
+ * socket.js
+ * @description :: socket connection wit  h server
+ */
 
-module.exports = (io, socket) => {
-  // Evento para mensagens de chat
-  socket.on('chatMessage', async (data) => {
-    try {
+const socketData = require('../../../model/socketData');
+const dbService = require('../../../utils/dbService');
+module.exports = function (httpServer) {
+  const io = require('socket.io')(httpServer, { cors: { origin: '*' } });
+  io.on('connection', (socket) => {
+    io.on('event', async (data) => {
       if (data.message) {
         const user = await dbService.findOne(socketData, { message: data.message });
-
         if (user) {
           await dbService.updateOne(socketData, { message: data.message }, { socketId: socket.id });
-        } else {
+        }
+        else {
           const input = new socketData({
             message: data.message,
-            socketId: socket.id,
+            socketId: socket.id
           });
           await dbService.create(socketData, input);
         }
-
-        // Emite a mensagem para todos os clientes conectados
-        io.emit('newMessage', data);
-      } else {
-        console.error('Mensagem inválida recebida:', data);
       }
-    } catch (error) {
-      console.error('Erro ao processar mensagem de chat:', error);
-    }
+      else {
+        const input = new socketData({ socketId: socket.id });
+        await dbService.create(socketData, input);
+      }
+    });
   });
 };
