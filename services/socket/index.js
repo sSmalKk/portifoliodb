@@ -2,6 +2,7 @@ const ServerClock = require('../../model/ServerClock');
 const PlayerClock = require('../../model/PlayerClock');
 const socketData = require('../../model/socketData');
 const dbService = require('../../utils/dbService');
+const axios = require('axios');
 
 // Inicialização do relógio global
 const serverClock = new ServerClock('2025-01-18T00:00:00Z');
@@ -15,7 +16,7 @@ module.exports = function (httpServer) {
     cors: { origin: '*' },
   });
 
-  io.on('connection', (socket) => {
+  io.on('connection', async (socket) => {
     console.log('Novo cliente conectado.');
 
     const currentTick = serverClock.getCurrentTick();
@@ -23,36 +24,43 @@ module.exports = function (httpServer) {
 
     players[socket.id] = playerClock;
 
+    // Sincroniza o tick e a data do mundo com o cliente
     socket.emit('sync', {
       serverTick: currentTick,
+      playerTick: playerClock.getTotalTick(),
       worldDate: serverClock.getWorldDate().format(),
     });
 
     // Inicia o relógio do jogador
     playerClock.start();
 
-    // Evento personalizado: Recebe dados e atualiza o banco
-    socket.on('event', async (data) => {
-      if (data.message) {
-        const user = await dbService.findOne(socketData, { message: data.message });
-        if (user) {
-          await dbService.updateOne(socketData, { message: data.message }, { socketId: socket.id });
-        } else {
-          const input = new socketData({
-            message: data.message,
-            socketId: socket.id,
-          });
-          await dbService.create(socketData, input);
-        }
-      } else {
-        const input = new socketData({ socketId: socket.id });
-        await dbService.create(socketData, input);
-      }
+    // Carrega mensagens antigas ao conectar
+    const chatMessages = await axios.post('http://localhost:5000/client/api/v1/chat_message/list', {
+      query: {},
+      options: {
+        sort: { createdAt: 1 }, // Ordena por data de criação (mais antigas primeiro)
+        limit: 50, // Limite de mensagens a retornar
+      },
     });
 
+    socket.emit('loadMessages', chatMessages.data.data);
+
     // Recebe mensagem global e envia para todos os clientes
-    socket.on('sendGlobalMessage', ({ message }) => {
-      const formattedMessage = { sender: 'User', text: message };
+    socket.on('sendGlobalMessage', async ({ message }) => {
+      const formattedMessage = {
+        sender: 'Usuário',
+        text: message,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Armazena a mensagem no banco via API
+      await axios.post('http://localhost:5000/admin/chat_message/list', {
+        message,
+        sender: 'Usuário',
+        recipient: 'Global',
+        createdAt: formattedMessage.createdAt,
+      });
+
       io.emit('receiveGlobalMessage', formattedMessage);
       console.log('Mensagem global enviada:', formattedMessage);
     });
