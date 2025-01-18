@@ -33,7 +33,10 @@ async function seedUser() {
     async function createGlobalChat() {
       try {
         // Verificar se o grupo já existe
-        const existingGroup = await Chat_group.findOne({ name: 'Global Chat', code: '0-0-0' });
+        const existingGroup = await Chat_group.findOne({
+          id: '000000000000000000',
+          name: 'Global Chat', code: '0-0-0'
+        });
         if (existingGroup) {
           console.log('Chat global já existe.');
           return;
@@ -41,6 +44,7 @@ async function seedUser() {
 
         // Criar o grupo de chat global
         const globalChatGroup = new Chat_group({
+          id: '000000000000000000',
           name: 'Global Chat',
           code: '0-0-0',
           admin: userToBeInserted.username,
