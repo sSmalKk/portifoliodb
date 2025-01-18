@@ -1,6 +1,6 @@
 {
-  "id": "027af96a-d63b-46b1-987a-6e67ba25e4e5",
-  "name": "e_commerce_mvc_mongodb_environment",
+  "id": "dcb53df4-2ba5-440f-867d-3b3d9b7a0dd8",
+  "name": "sandboxdb_environment",
   "values": [
     {
       "key": "token",
@@ -14,6 +14,6 @@
     }
   ],
   "_postman_variable_scope": "environment",
-  "_postman_exported_at": "2025-01-18T01:39:27.432Z",
+  "_postman_exported_at": "2025-01-15T22:56:01.840Z",
   "_postman_exported_using": "Postman"
 }

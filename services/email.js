@@ -1,5 +1,5 @@
 /** 
- * emailServicsse.js
+ * emailService.js
  * @description :: exports function used in sending mails using mailgun provider
  */
 

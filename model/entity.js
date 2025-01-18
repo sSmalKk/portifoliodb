@@ -21,44 +21,32 @@ mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
 const Schema = mongoose.Schema;
 const schema = new Schema(
   {
-
-    isDeleted:{ type:Boolean },
-
-    isActive:{ type:Boolean },
-
-    createdAt:{ type:Date },
-
-    updatedAt:{ type:Date },
-
-    addedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'user'
+    isDeleted: { type: Boolean },
+    isActive: { type: Boolean },
+    createdAt: { type: Date },
+    updatedAt: { type: Date },
+    addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    x: { type: Number, default: 0 },
+    y: { type: Number, default: 0 },
+    z: { type: Number, default: 0 },
+    vx: { type: String, default: '0' },
+    vy: { type: String, default: '0' },
+    vz: { type: String, default: '0' },
+    rx: { type: String, default: '0' },
+    ry: { type: String, default: '0' },
+    rz: { type: String, default: '0' },
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
+  },
+  {
+    timestamps: {
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
-
-    updatedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'user'
-    },
-
-    x:{ type:Number },
-
-    y:{ type:Number },
-
-    z:{ type:Number },
-
-    xr:{ type:Number },
-
-    yr:{ type:Number },
-
-    zr:{ type:Number }
-  }
-  ,{ 
-    timestamps: { 
-      createdAt: 'createdAt', 
-      updatedAt: 'updatedAt' 
-    } 
   }
 );
+
+
 schema.pre('save', async function (next) {
   this.isDeleted = false;
   this.isActive = true;
@@ -66,7 +54,7 @@ schema.pre('save', async function (next) {
 });
 
 schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length){
+  if (docs && docs.length) {
     for (let index = 0; index < docs.length; index++) {
       const element = docs[index];
       element.isDeleted = false;
@@ -78,13 +66,13 @@ schema.pre('insertMany', async function (next, docs) {
 
 schema.method('toJSON', function () {
   const {
-    _id, __v, ...object 
-  } = this.toObject({ virtuals:true });
+    _id, __v, ...object
+  } = this.toObject({ virtuals: true });
   object.id = _id;
-     
+
   return object;
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const entity = mongoose.model('entity',schema);
+const entity = mongoose.model('entity', schema);
 module.exports = entity;

@@ -28,18 +28,27 @@ beforeAll(async function (){
     await client.connect();
     const dbInstance = client.db('EcomDb_test');
 
-    const user = dbInstance.collection('users');
-    insertedUser = await user.insertOne({
-      username: 'Skye_Keebler',
-      password: 'Eo6DN9DgosKYlB8',
-      email: 'Alessandro_Rolfson@yahoo.com',
-      name: 'Nathan Davis',
-      userType: 783,
-      mobileNo: '(395) 469-4905',
+    const User = dbInstance.collection('Users');
+    insertedUser = await User.insertOne({
+      username: 'Cristina.Bartell',
+      password: 'dPdowzCsczxxuPg',
+      email: 'John.Trantow14@gmail.com',
+      name: 'Philip Kovacek',
+      userType: 337,
+      x: 676,
+      y: 848,
+      z: 680,
+      vx: 'platforms',
+      vy: 'array',
+      vz: 'deposit',
+      rx: 'transmitter',
+      ry: 'quantify',
+      rz: 'Plastic',
+      mobileNo: '(045) 628-8529',
       resetPasswordLink: {},
-      loginRetryLimit: 852,
-      loginReactiveTime: '2025-06-07T13:37:30.767Z',
-      id: '678b064f65b967027092bd47'
+      loginRetryLimit: 823,
+      loginReactiveTime: '2025-05-27T13:46:56.590Z',
+      id: '67883d01eef3dd17bfd0e8a6'
     });
   }
   catch (error) {
@@ -53,16 +62,25 @@ beforeAll(async function (){
 // test cases
 
 describe('POST /register -> if email and username is given', () => {
-  test('should register a user', async () => {
+  test('should register a User', async () => {
     let registeredUser = await request(app)
       .post('/client/auth/register')
       .send({
-        'username':'Summer92',
-        'password':'bDv4zbjxhDM_Pxe',
-        'email':'Reece_Cummerata@gmail.com',
-        'name':'Tricia Ritchie II',
+        'username':'Agnes.Sanford51',
+        'password':'X4nBkygUMlnIefj',
+        'email':'Guiseppe.Cruickshank@hotmail.com',
+        'name':'Brittany Morissette',
         'userType':authConstant.USER_TYPES.User,
-        'mobileNo':'(216) 051-5423',
+        'x':38,
+        'y':236,
+        'z':732,
+        'vx':'homogeneous',
+        'vy':'of',
+        'vz':'homogeneous',
+        'rx':'SCSI',
+        'ry':'payment',
+        'rz':'application',
+        'mobileNo':'(541) 943-7398',
         'addedBy':insertedUser.insertedId,
         'updatedBy':insertedUser.insertedId
       });
@@ -73,18 +91,18 @@ describe('POST /register -> if email and username is given', () => {
 });
 
 describe('POST /login -> if username and password is correct', () => {
-  test('should return user with authentication token', async () => {
-    let user = await request(app)
+  test('should return User with authentication token', async () => {
+    let User = await request(app)
       .post('/client/auth/login')
       .send(
         {
-          username: 'Summer92',
-          password: 'bDv4zbjxhDM_Pxe'
+          username: 'Agnes.Sanford51',
+          password: 'X4nBkygUMlnIefj'
         }
       );
-    expect(user.statusCode).toBe(200);
-    expect(user.body.status).toBe('SUCCESS');
-    expect(user.body.data).toMatchObject({
+    expect(User.statusCode).toBe(200);
+    expect(User.body.status).toBe('SUCCESS');
+    expect(User.body.data).toMatchObject({
       id: expect.any(String),
       token: expect.any(String)
     }); 
@@ -92,78 +110,78 @@ describe('POST /login -> if username and password is correct', () => {
 });
 
 describe('POST /login -> if username is incorrect', () => {
-  test('should return unauthorized status and user not exists', async () => {
-    let user = await request(app)
+  test('should return unauthorized status and User not exists', async () => {
+    let User = await request(app)
       .post('/client/auth/login')
       .send(
         {
           username: 'wrong.username',
-          password: 'bDv4zbjxhDM_Pxe'
+          password: 'X4nBkygUMlnIefj'
         }
       );
 
-    expect(user.statusCode).toBe(400);
-    expect(user.body.status).toBe('BAD_REQUEST');
+    expect(User.statusCode).toBe(400);
+    expect(User.body.status).toBe('BAD_REQUEST');
   });
 });
 
 describe('POST /login -> if password is incorrect', () => {
   test('should return unauthorized status and incorrect password', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .post('/client/auth/login')
       .send(
         {
-          username: 'Summer92',
+          username: 'Agnes.Sanford51',
           password: 'wrong@password'
         }
       );
 
-    expect(user.statusCode).toBe(400);
-    expect(user.body.status).toBe('BAD_REQUEST');
+    expect(User.statusCode).toBe(400);
+    expect(User.body.status).toBe('BAD_REQUEST');
   });
 });
 
 describe('POST /login -> if username or password is empty string or has not passed in body', () => {
   test('should return bad request status and insufficient parameters', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .post('/client/auth/login')
       .send({});
 
-    expect(user.statusCode).toBe(400);
-    expect(user.body.status).toBe('BAD_REQUEST');
+    expect(User.statusCode).toBe(400);
+    expect(User.body.status).toBe('BAD_REQUEST');
   });
 });
 
 describe('POST /forgot-password -> if email has not passed from request body', () => {
   test('should return bad request status and insufficient parameters', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .post('/client/auth/forgot-password')
       .send({ email: '' });
 
-    expect(user.statusCode).toBe(400);
-    expect(user.body.status).toBe('BAD_REQUEST');
+    expect(User.statusCode).toBe(400);
+    expect(User.body.status).toBe('BAD_REQUEST');
   });
 });
 
 describe('POST /forgot-password -> if email passed from request body is not available in database ', () => {
   test('should return record not found status', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .post('/client/auth/forgot-password')
       .send({ 'email': 'unavailable.email@hotmail.com', });
 
-    expect(user.statusCode).toBe(404);
-    expect(user.body.status).toBe('RECORD_NOT_FOUND');
+    expect(User.statusCode).toBe(404);
+    expect(User.body.status).toBe('RECORD_NOT_FOUND');
   });
 });
 
 describe('POST /forgot-password -> if email passed from request body is valid and OTP sent successfully', () => {
   test('should return success message', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .post('/client/auth/forgot-password')
-      .send({ 'email':'Reece_Cummerata@gmail.com', });
+      .send({ 'email':'Guiseppe.Cruickshank@hotmail.com', });
 
-    expect(user.statusCode).toBe(200);
-    expect(user.body.status).toBe('SUCCESS');
+    expect(User.statusCode).toBe(200);
+    expect(User.body.status).toBe('SUCCESS');
   });
 });
 
@@ -173,20 +191,20 @@ describe('POST /validate-otp -> OTP is sent in request body and OTP is correct',
       .post('/client/auth/login')
       .send(
         {
-          username: 'Summer92',
-          password: 'bDv4zbjxhDM_Pxe'
+          username: 'Agnes.Sanford51',
+          password: 'X4nBkygUMlnIefj'
         }).then(login => () => {
         return request(app)
-          .get(`/client/api/v1/user/${login.body.data.id}`)
+          .get(`/client/api/v1/User/${login.body.data.id}`)
           .set({
             Accept: 'application/json',
             Authorization: `Bearer ${login.body.data.token}`
           }).then(foundUser => {
             return request(app)
               .post('/client/auth/validate-otp')
-              .send({ 'otp': foundUser.body.data.resetPasswordLink.code, }).then(user => {
-                expect(user.statusCode).toBe(200);
-                expect(user.body.status).toBe('SUCCESS');
+              .send({ 'otp': foundUser.body.data.resetPasswordLink.code, }).then(User => {
+                expect(User.statusCode).toBe(200);
+                expect(User.body.status).toBe('SUCCESS');
               });
           });
       });
@@ -195,24 +213,24 @@ describe('POST /validate-otp -> OTP is sent in request body and OTP is correct',
 
 describe('POST /validate-otp -> if OTP is incorrect or OTP has expired', () => {
   test('should return invalid OTP', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .post('/client/auth/validate-otp')
       .send({ 'otp': '12334' });
     
-    expect(user.statusCode).toBe(200);
-    expect(user.body.status).toBe('FAILURE');
+    expect(User.statusCode).toBe(200);
+    expect(User.body.status).toBe('FAILURE');
     
   });
 });
 
 describe('POST /validate-otp -> if request body is empty or OTP has not been sent in body', () => {
   test('should return insufficient parameter', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .post('/client/auth/validate-otp')
       .send({});
 
-    expect(user.statusCode).toBe(400);
-    expect(user.body.status).toBe('BAD_REQUEST');
+    expect(User.statusCode).toBe(400);
+    expect(User.body.status).toBe('BAD_REQUEST');
   });
 });
 
@@ -222,11 +240,11 @@ describe('PUT /reset-password -> code is sent in request body and code is correc
       .post('/client/auth/login')
       .send(
         {
-          username: 'Summer92',
-          password: 'bDv4zbjxhDM_Pxe'
+          username: 'Agnes.Sanford51',
+          password: 'X4nBkygUMlnIefj'
         }).then(login => () => {
         return request(app)
-          .get(`/client/api/v1/user/${login.body.data.id}`)
+          .get(`/client/api/v1/User/${login.body.data.id}`)
           .set({
             Accept: 'application/json',
             Authorization: `Bearer ${login.body.data.token}`
@@ -236,9 +254,9 @@ describe('PUT /reset-password -> code is sent in request body and code is correc
               .send({
                 'code': foundUser.body.data.resetPasswordLink.code,
                 'newPassword':'newPassword'
-              }).then(user => {
-                expect(user.statusCode).toBe(200);
-                expect(user.body.status).toBe('SUCCESS');
+              }).then(User => {
+                expect(User.statusCode).toBe(200);
+                expect(User.body.status).toBe('SUCCESS');
               });
           });
       });
@@ -247,26 +265,26 @@ describe('PUT /reset-password -> code is sent in request body and code is correc
 
 describe('PUT /reset-password -> if request body is empty or code/newPassword is not given', () => {
   test('should return insufficient parameter', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .put('/client/auth/reset-password')
       .send({});
     
-    expect(user.statusCode).toBe(400);
-    expect(user.body.status).toBe('BAD_REQUEST');
+    expect(User.statusCode).toBe(400);
+    expect(User.body.status).toBe('BAD_REQUEST');
   });
 });
 
 describe('PUT /reset-password -> if code is invalid', () => {
   test('should return invalid code', async () => {
-    let user = await request(app)
+    let User = await request(app)
       .put('/client/auth/reset-password')
       .send({
         'code': '123',
         'newPassword': 'testPassword'
       });
 
-    expect(user.statusCode).toBe(200);
-    expect(user.body.status).toBe('FAILURE');
+    expect(User.statusCode).toBe(200);
+    expect(User.body.status).toBe('FAILURE');
 
   });
 });

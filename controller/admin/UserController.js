@@ -1,14 +1,17 @@
 /**
- * userController.js
- * @description : exports action methods for user.
+ * UserController.js
+ * @description : exports action methods for User.
  */
 
-const User = require('../../model/user');
-const userSchemaKey = require('../../utils/validation/userValidation');
+const User = require('../../model/User');
+const UserSchemaKey = require('../../utils/validation/UserValidation');
 const validation = require('../../utils/validateRequest');
 const dbService = require('../../utils/dbService');
 const ObjectId = require('mongodb').ObjectId;
 const auth = require('../../services/auth');
+const authConstant = require('../../constants/authConstant');
+const role = require('../../model/role');
+const userRole = require('../../model/userRole');
 const deleteDependentService = require('../../utils/deleteDependent');
 const utils = require('../../utils/common');
 
@@ -46,13 +49,22 @@ const addUser = async (req, res) => {
     let dataToCreate = { ...req.body || {} };
     let validateRequest = validation.validateParamsWithJoi(
       dataToCreate,
-      userSchemaKey.schemaKeys);
+      UserSchemaKey.schemaKeys);
     if (!validateRequest.isValid) {
       return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });
     }
     dataToCreate.addedBy = req.user.id;
     dataToCreate = new User(dataToCreate);
     let createdUser = await dbService.create(User,dataToCreate);
+    if (createdUser && createdUser.id){
+      let defaultRole = await dbService.findOne(role,{ name:authConstant.DEFAULT_USER_ROLE });
+      if (defaultRole && defaultRole.id){
+        await dbService.create(userRole,{
+          userId:createdUser.id,
+          roleId:defaultRole.id
+        });
+      }
+    }
     return res.success({ data : createdUser });
   } catch (error) {
     return res.internalServerError({ message:error.message }); 
@@ -78,6 +90,20 @@ const bulkInsertUser = async (req,res)=>{
       };
     }
     let createdUsers = await dbService.create(User,dataToCreate);
+    if (createdUsers && createdUsers.length){
+      let defaultRole = await dbService.findMany(role, { name: authConstant.DEFAULT_USER_ROLE });
+      let userRoleData = createdUsers.map(r=> {
+        if (r.id){
+          return {
+            roleId: defaultRole.id,
+            userId: r.id,
+          };
+        }
+      });
+      if (userRoleData.length) {
+        await dbService.create(userRole, userRoleData);
+      }
+    }
     createdUsers = { count: createdUsers ? createdUsers.length : 0 };
     return res.success({ data:{ count:createdUsers.count || 0 } });
   } catch (error){
@@ -97,7 +123,7 @@ const findAllUser = async (req,res) => {
     let query = {};
     let validateRequest = validation.validateFilterWithJoi(
       req.body,
-      userSchemaKey.findFilterKeys,
+      UserSchemaKey.findFilterKeys,
       User.schema.obj
     );
     if (!validateRequest.isValid) {
@@ -163,7 +189,7 @@ const getUserCount = async (req,res) => {
     let where = {};
     let validateRequest = validation.validateFilterWithJoi(
       req.body,
-      userSchemaKey.findFilterKeys,
+      UserSchemaKey.findFilterKeys,
     );
     if (!validateRequest.isValid) {
       return res.validationError({ message: `${validateRequest.message}` });
@@ -192,7 +218,7 @@ const updateUser = async (req,res) => {
     };
     let validateRequest = validation.validateParamsWithJoi(
       dataToUpdate,
-      userSchemaKey.updateSchemaKeys
+      UserSchemaKey.updateSchemaKeys
     );
     if (!validateRequest.isValid) {
       return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });
@@ -258,7 +284,7 @@ const partialUpdateUser = async (req,res) => {
     };
     let validateRequest = validation.validateParamsWithJoi(
       dataToUpdate,
-      userSchemaKey.updateSchemaKeys
+      UserSchemaKey.updateSchemaKeys
     );
     if (!validateRequest.isValid) {
       return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });
@@ -445,7 +471,7 @@ const updateProfile = async (req, res) => {
     let data = req.body;
     let validateRequest = validation.validateParamsWithJoi(
       data,
-      userSchemaKey.updateSchemaKeys
+      UserSchemaKey.updateSchemaKeys
     );
     if (!validateRequest.isValid) {
       return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });

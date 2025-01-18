@@ -64,15 +64,13 @@ const schema = new Schema(
 
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'user'
+      ref:'User'
     },
 
     addedBy:{
       type:Schema.Types.ObjectId,
-      ref:'user'
-    },
-
-    comentarios:{ type:Array }
+      ref:'User'
+    }
   }
   ,{ 
     timestamps: { 

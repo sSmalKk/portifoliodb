@@ -1,0 +1,108 @@
+preciso anotar o seguinte:
+
+a mistura do material com o part e a temperatura da part vai definir o estado do part, parts podem estar dentro de outros, pois o part vai ser oque define as propriedades dos itens, exemplo, um copo vaiser sempre um copo, vidro é ipermeavel, entao um copo de vidro vai conter um liquido desde que nao em movimento, uma capsuta vai tambem mesmo em movimento, entao podem ter materiais semelhantes e com configs diferentes, o mesmo pro material, se fizer um copo de areia, ele desmonta, mas se aguentar, absorve agua, e por ai vai
+
+### Notas sobre o Sistema de Partes, Materiais e Estados
+
+1. **Definição de "Part"**:
+   - Um `Part` é a unidade básica que define as **propriedades físicas e químicas de itens no jogo**.
+   - **Estado do Part**:
+     - Determinado pela **mistura de materiais** e a **temperatura** aplicada ao `Part`.
+     - Exemplos:
+       - Um `Part` feito de vidro permanece sólido à temperatura ambiente, mas pode se derreter a altas temperaturas.
+       - Um `Part` de areia absorve água quando em contato e não se move.
+
+2. **Hierarquia de Parts**:
+   - Parts podem **conter outros Parts**, formando **itens compostos**:
+     - Exemplo 1: Um **copo de vidro** pode conter um líquido (água) desde que não esteja em movimento.
+     - Exemplo 2: Uma **cápsula de metal** pode conter um líquido mesmo em movimento.
+
+3. **Materiais**:
+   - Cada material possui propriedades básicas, como:
+     - Permeabilidade (ex.: vidro é impermeável, areia não é).
+     - Resistência (ex.: vidro pode quebrar, enquanto metal é resistente).
+     - Reação a condições externas (ex.: areia desmonta sob pressão ou vibração).
+   - Materiais similares podem ter **configurações distintas** que afetam como eles interagem com outros Parts ou o ambiente:
+     - Exemplo: Um copo de vidro é impermeável e estável; um copo de areia é instável e absorve água.
+
+4. **Misturas de Materiais**:
+   - É possível criar **misturas complexas** de materiais que combinam propriedades.
+   - Essas misturas afetam o estado do `Part` e sua interação com o ambiente:
+     - Exemplo: Uma mistura de vidro e plástico pode criar um material transparente, mas menos frágil que vidro puro.
+
+5. **Interação entre Parts e Materiais**:
+   - Regras específicas definem como os materiais e Parts interagem:
+     - Um `Part` feito de areia absorve água e desmonta se agitado.
+     - Um `Part` feito de metal mantém líquidos mesmo em movimento.
+     - Um `Part` de vidro permite ver o conteúdo, mas é vulnerável a impacto.
+
+6. **Exemplos Práticos no Jogo**:
+   - **Copo de Vidro**:
+     - Material: Vidro.
+     - Propriedades:
+       - Impermeável.
+       - Frágil.
+     - Estado: Contém líquidos se estável.
+   - **Cápsula de Metal**:
+     - Material: Metal.
+     - Propriedades:
+       - Impermeável.
+       - Resistente a movimento.
+     - Estado: Contém líquidos em qualquer condição.
+   - **Copo de Areia**:
+     - Material: Areia compactada.
+     - Propriedades:
+       - Permeável.
+       - Instável sob pressão.
+     - Estado: Absorve líquidos e desmonta sob vibração.
+
+### Considerações Técnicas
+
+- **Configurações de Materiais e Parts**:
+  - Materiais e suas configurações devem incluir:
+    - Permeabilidade.
+    - Resistência mecânica.
+    - Reatividade química.
+    - Pontos de fusão e ebulição.
+
+- **Simulação de Estados**:
+  - Os estados dos Parts devem ser calculados dinamicamente:
+    - Mistura de materiais.
+    - Temperatura.
+    - Condições externas (pressão, vibração, movimento).
+
+- **Modelagem no Banco de Dados**:
+  - Materiais:
+    ```json
+    {
+      "name": "Glass",
+      "properties": {
+        "permeability": "impermeable",
+        "fragility": "high",
+        "meltingPoint": 1400
+      }
+    }
+    ```
+  - Parts:
+    ```json
+    {
+      "name": "Glass Cup",
+      "material": "Glass",
+      "containedParts": ["Water"],
+      "rules": {
+        "holdsLiquid": true,
+        "breakOnImpact": true
+      }
+    }
+    ```
+
+Esse sistema modular permitirá criar objetos com propriedades e comportamentos únicos, alinhados ao tipo de material e condições físicas.
+
+
+
+
+
+
+
+
+imaginno que pela terra ser um item, e pelo oceano "ser um part", e que o oceano seja um recipiente de terra que contenha agua, e que algumas receitas sejam "shapeless", ou mesmo um tipo especifico de part pra essas coisas, vamos pensar,
