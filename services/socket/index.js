@@ -8,6 +8,7 @@ const serverClock = new ServerClock('2025-01-18T00:00:00Z');
 
 // Gerenciamento de conexões de jogadores
 const players = {};
+let debugInterval = null;
 
 module.exports = function (httpServer) {
   const io = require('socket.io')(httpServer, { cors: { origin: '*' } });
@@ -50,6 +51,29 @@ module.exports = function (httpServer) {
     socket.on('disconnect', () => {
       playerClock.stop();
       delete players[socket.id];
+
+      // Para o debug quando não há mais jogadores conectados
+      if (Object.keys(players).length === 0 && debugInterval) {
+        clearInterval(debugInterval);
+        debugInterval = null;
+      }
     });
+
+    // Inicia o debug quando o primeiro jogador conecta
+    if (!debugInterval) {
+      debugInterval = setInterval(() => {
+        const globalTick = serverClock.getCurrentTick();
+        const playerData = Object.entries(players).map(([id, player]) => ({
+          socketId: id,
+          playerTick: player.getTotalTick(),
+        }));
+
+        console.log('--- Debug Sync ---');
+        console.log(`Global Tick: ${globalTick}`);
+        console.log('Player Ticks:', playerData);
+        console.log('World Date:', serverClock.getWorldDate().format());
+        console.log('------------------');
+      }, 1000); // Executa a cada 1 segundo (ajustável)
+    }
   });
 };
