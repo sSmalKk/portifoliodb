@@ -37,7 +37,7 @@ module.exports = function (httpServer) {
     // Carrega mensagens antigas ao conectar
     try {
       const chatMessages = await axios.post(
-        'http://localhost:5000/client/api/v1/chat_message/list',
+        'https://portifoliodb.onrender.com/client/api/v1/chat_message/list',
         {
           query: {},
           options: {
@@ -68,7 +68,7 @@ module.exports = function (httpServer) {
       try {
         // Armazena a mensagem no banco via API
         await axios.post(
-          'http://localhost:5000/admin/chat_message/list',
+          'https://portifoliodb.onrender.com/admin/chat_message/list',
           {
             message,
             sender: 'Usuário',
