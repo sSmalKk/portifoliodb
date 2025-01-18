@@ -11,60 +11,55 @@ const players = {};
 let debugInterval = null;
 
 module.exports = function (httpServer) {
-  const io = require('socket.io')(5000, {
+  const io = require('socket.io')(httpServer, {
     cors: { origin: '*' },
   });
 
   io.on('connection', (socket) => {
+    console.log('Novo cliente conectado.');
 
-    io.on('connection', (socket) => {
-      console.log('Novo cliente conectado.');
+    const currentTick = serverClock.getCurrentTick();
+    const playerClock = new PlayerClock(currentTick);
 
-      const currentTick = serverClock.getCurrentTick();
-      const playerClock = new PlayerClock(currentTick);
+    players[socket.id] = playerClock;
 
-      players[socket.id] = playerClock;
+    socket.emit('sync', {
+      serverTick: currentTick,
+      worldDate: serverClock.getWorldDate().format(),
+    });
 
-      socket.emit('sync', {
-        serverTick: currentTick,
-        worldDate: serverClock.getWorldDate().format(),
-      });
+    // Inicia o relógio do jogador
+    playerClock.start();
 
-      // Inicia o relógio do jogador
-      playerClock.start();
-
-      // Evento personalizado: Recebe dados e atualiza o banco
-      socket.on('event', async (data) => {
-        if (data.message) {
-          const user = await dbService.findOne(socketData, { message: data.message });
-          if (user) {
-            await dbService.updateOne(socketData, { message: data.message }, { socketId: socket.id });
-          } else {
-            const input = new socketData({
-              message: data.message,
-              socketId: socket.id,
-            });
-            await dbService.create(socketData, input);
-          }
+    // Evento personalizado: Recebe dados e atualiza o banco
+    socket.on('event', async (data) => {
+      if (data.message) {
+        const user = await dbService.findOne(socketData, { message: data.message });
+        if (user) {
+          await dbService.updateOne(socketData, { message: data.message }, { socketId: socket.id });
         } else {
-          const input = new socketData({ socketId: socket.id });
+          const input = new socketData({
+            message: data.message,
+            socketId: socket.id,
+          });
           await dbService.create(socketData, input);
         }
-      });
-      // Recebe mensagem global e envia para todos os clientes
-      socket.on('sendGlobalMessage', ({ message }) => {
-        const formattedMessage = { sender: 'User', text: message };
-        io.emit('receiveGlobalMessage', formattedMessage);
-        console.log('Mensagem global enviada:', formattedMessage);
-      });
+      } else {
+        const input = new socketData({ socketId: socket.id });
+        await dbService.create(socketData, input);
+      }
+    });
 
-      socket.on('disconnect', () => {
-        console.log('Cliente desconectado.');
-      });
+    // Recebe mensagem global e envia para todos os clientes
+    socket.on('sendGlobalMessage', ({ message }) => {
+      const formattedMessage = { sender: 'User', text: message };
+      io.emit('receiveGlobalMessage', formattedMessage);
+      console.log('Mensagem global enviada:', formattedMessage);
     });
 
     // Desconexão do jogador
     socket.on('disconnect', () => {
+      console.log('Cliente desconectado.');
       playerClock.stop();
       delete players[socket.id];
 
@@ -74,22 +69,22 @@ module.exports = function (httpServer) {
         debugInterval = null;
       }
     });
-
-    // Inicia o debug quando o primeiro jogador conecta
-    if (!debugInterval) {
-      debugInterval = setInterval(() => {
-        const globalTick = serverClock.getCurrentTick();
-        const playerData = Object.entries(players).map(([id, player]) => ({
-          socketId: id,
-          playerTick: player.getTotalTick(),
-        }));
-
-        console.log('--- Debug Sync ---');
-        console.log(`Global Tick: ${globalTick}`);
-        console.log('Player Ticks:', playerData);
-        console.log('World Date:', serverClock.getWorldDate().format());
-        console.log('------------------');
-      }, 1000); // Executa a cada 1 segundo (ajustável)
-    }
   });
+
+  // Inicia o debug quando o primeiro jogador conecta
+  if (!debugInterval) {
+    debugInterval = setInterval(() => {
+      const globalTick = serverClock.getCurrentTick();
+      const playerData = Object.entries(players).map(([id, player]) => ({
+        socketId: id,
+        playerTick: player.getTotalTick(),
+      }));
+
+      console.log('--- Debug Sync ---');
+      console.log(`Global Tick: ${globalTick}`);
+      console.log('Player Ticks:', playerData);
+      console.log('World Date:', serverClock.getWorldDate().format());
+      console.log('------------------');
+    }, 1000); // Executa a cada 1 segundo (ajustável)
+  }
 };
