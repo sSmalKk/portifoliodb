@@ -8,7 +8,7 @@ const {
   Strategy, ExtractJwt 
 } = require('passport-jwt');
 const { JWT } = require('../constants/authConstant');
-const User = require('../model/user');
+const user = require('../model/user');
 
 const adminPassportStrategy = (passport) => {
   const options = {};
