@@ -35,15 +35,27 @@ module.exports = function (httpServer) {
     playerClock.start();
 
     // Carrega mensagens antigas ao conectar
-    const chatMessages = await axios.post('http://localhost:5000/client/api/v1/chat_message/list', {
-      query: {},
-      options: {
-        sort: { createdAt: 1 }, // Ordena por data de criação (mais antigas primeiro)
-        limit: 50, // Limite de mensagens a retornar
-      },
-    });
-
-    socket.emit('loadMessages', chatMessages.data.data);
+    try {
+      const chatMessages = await axios.post(
+        'http://localhost:5000/client/api/v1/chat_message/list',
+        {
+          query: {},
+          options: {
+            sort: { createdAt: 1 },
+            limit: 50,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer SEU_TOKEN_AQUI`, // Adicione o token se necessário
+          },
+        }
+      );
+      socket.emit('loadMessages', chatMessages.data.data);
+    } catch (error) {
+      console.error('Erro ao carregar mensagens antigas:', error.response?.data || error.message);
+      socket.emit('error', { message: 'Falha ao carregar mensagens antigas.' });
+    }
 
     // Recebe mensagem global e envia para todos os clientes
     socket.on('sendGlobalMessage', async ({ message }) => {
@@ -53,16 +65,29 @@ module.exports = function (httpServer) {
         createdAt: new Date().toISOString(),
       };
 
-      // Armazena a mensagem no banco via API
-      await axios.post('http://localhost:5000/admin/chat_message/list', {
-        message,
-        sender: 'Usuário',
-        recipient: 'Global',
-        createdAt: formattedMessage.createdAt,
-      });
+      try {
+        // Armazena a mensagem no banco via API
+        await axios.post(
+          'http://localhost:5000/admin/chat_message/list',
+          {
+            message,
+            sender: 'Usuário',
+            recipient: 'Global',
+            createdAt: formattedMessage.createdAt,
+          },
+          {
+            headers: {
+              Authorization: `Bearer SEU_TOKEN_AQUI`, // Adicione o token se necessário
+            },
+          }
+        );
 
-      io.emit('receiveGlobalMessage', formattedMessage);
-      console.log('Mensagem global enviada:', formattedMessage);
+        io.emit('receiveGlobalMessage', formattedMessage);
+        console.log('Mensagem global enviada:', formattedMessage);
+      } catch (error) {
+        console.error('Erro ao salvar mensagem no banco:', error.response?.data || error.message);
+        socket.emit('error', { message: 'Falha ao enviar mensagem global.' });
+      }
     });
 
     // Desconexão do jogador
