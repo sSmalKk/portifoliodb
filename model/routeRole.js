@@ -41,12 +41,12 @@ const schema = new Schema(
 
     addedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
     isDeleted:{ type:Boolean }

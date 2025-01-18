@@ -3,13 +3,11 @@
  * @description :: exports authentication methods
  */
 
-const User = require('../../../model/User');
+const User = require('../../../model/user');
 const dbService = require('../../../utils/dbService');
 const userTokens = require('../../../model/userTokens');
-const role = require('../../../model/role');
-const userRole = require('../../../model/userRole');
 const dayjs = require('dayjs');
-const UserSchemaKey = require('../../../utils/validation/UserValidation');
+const userSchemaKey = require('../../../utils/validation/userValidation');
 const validation = require('../../../utils/validateRequest');
 const authConstant = require('../../../constants/authConstant');
 const authService =  require('../../../services/auth');
@@ -25,7 +23,7 @@ const register = async (req,res) =>{
   try {
     let validateRequest = validation.validateParamsWithJoi(
       req.body,
-      UserSchemaKey.schemaKeys
+      userSchemaKey.schemaKeys
     );
     if (!validateRequest.isValid) {
       return res.validationError({ message :  `Invalid values in parameters, ${validateRequest.message}` });
@@ -46,15 +44,6 @@ const register = async (req,res) =>{
     }
 
     const result = await dbService.create(User,data);
-    if (result && result.id){
-      let defaultRole = await dbService.findOne(role,{ name:authConstant.DEFAULT_USER_ROLE });
-      if (defaultRole && defaultRole.id){
-        await dbService.create(userRole,{
-          userId:result.id,
-          roleId:defaultRole.id
-        });
-      }
-    }
     if (isEmptyPassword && req.body.email){
       await authService.sendPasswordByEmail({
         email: req.body.email,

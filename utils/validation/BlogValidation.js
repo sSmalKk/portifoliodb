@@ -31,7 +31,8 @@ exports.schemaKeys = joi.object({
   url: joi.string().allow(null).allow(''),
   isDraft: joi.boolean(),
   isDeleted: joi.boolean(),
-  isActive: joi.boolean()
+  isActive: joi.boolean(),
+  comentarios: joi.array().items()
 }).unknown(true);
 
 /** validation keys and properties of Blog for updation */
@@ -58,6 +59,7 @@ exports.updateSchemaKeys = joi.object({
   isDraft: joi.boolean(),
   isDeleted: joi.boolean(),
   isActive: joi.boolean(),
+  comentarios: joi.array().items(),
   _id: joi.string().regex(/^[0-9a-fA-F]{24}$/)
 }).unknown(true);
 
@@ -81,6 +83,7 @@ exports.findFilterKeys = joi.object({
       isDraft: joi.alternatives().try(joi.array().items(),joi.boolean(),joi.object()),
       isDeleted: joi.alternatives().try(joi.array().items(),joi.boolean(),joi.object()),
       isActive: joi.alternatives().try(joi.array().items(),joi.boolean(),joi.object()),
+      comentarios: joi.alternatives().try(joi.array().items(),joi.array().items(),joi.object()),
       id: joi.any(),
       _id: joi.alternatives().try(joi.array().items(),joi.string().regex(/^[0-9a-fA-F]{24}$/),joi.object())
     }).unknown(true),])

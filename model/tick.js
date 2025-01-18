@@ -1,28 +1,82 @@
-const mongoose = require('mongoose');
+/**
+ * tick.js
+ * @description :: model of a database collection tick
+ */
 
-const tickSchema = new mongoose.Schema({
-  tickCount: { type: Number, default: 0 }, // Contador atual de ticks
-  activityLog: [
-    {
-      startTick: Number,
-      endTick: Number,
-      date: Date,
-      users: [String], // IDs ou nomes dos usuários conectados
+const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
+let idValidator = require('mongoose-id-validator');
+const myCustomLabels = {
+  totalDocs: 'itemCount',
+  docs: 'data',
+  limit: 'perPage',
+  page: 'currentPage',
+  nextPage: 'next',
+  prevPage: 'prev',
+  totalPages: 'pageCount',
+  pagingCounter: 'slNo',
+  meta: 'paginator',
+};
+mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
+const Schema = mongoose.Schema;
+const schema = new Schema(
+  {
+
+    data:{ type:String },
+
+    users:{ type:Array },
+
+    isDeleted:{ type:Boolean },
+
+    isActive:{ type:Boolean },
+
+    createdAt:{ type:Date },
+
+    updatedAt:{ type:Date },
+
+    addedBy:{
+      type:Schema.Types.ObjectId,
+      ref:'user'
     },
-  ],
-}, {
-  timestamps: true,
+
+    updatedBy:{
+      type:Schema.Types.ObjectId,
+      ref:'user'
+    }
+  }
+  ,{ 
+    timestamps: { 
+      createdAt: 'createdAt', 
+      updatedAt: 'updatedAt' 
+    } 
+  }
+);
+schema.pre('save', async function (next) {
+  this.isDeleted = false;
+  this.isActive = true;
+  next();
 });
 
-tickSchema.methods.addActivityLog = function (startTick, endTick, users) {
-  this.activityLog.push({
-    startTick,
-    endTick,
-    date: new Date(),
-    users,
-  });
-  return this.save();
-};
+schema.pre('insertMany', async function (next, docs) {
+  if (docs && docs.length){
+    for (let index = 0; index < docs.length; index++) {
+      const element = docs[index];
+      element.isDeleted = false;
+      element.isActive = true;
+    }
+  }
+  next();
+});
 
-const Tick = mongoose.model('Tick', tickSchema);
-module.exports = Tick;
+schema.method('toJSON', function () {
+  const {
+    _id, __v, ...object 
+  } = this.toObject({ virtuals:true });
+  object.id = _id;
+     
+  return object;
+});
+schema.plugin(mongoosePaginate);
+schema.plugin(idValidator);
+const tick = mongoose.model('tick',schema);
+module.exports = tick;
