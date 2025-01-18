@@ -71,7 +71,6 @@ async function seedUser () {
     // Executar a função
     createGlobalChat();
     userToBeInserted.password = await bcrypt.hash(userToBeInserted.password, 8);
-    let user = await dbService.updateOne(User, { 'username': 'Caleb.Erdman69' }, userToBeInserted, { upsert: true });
     userToBeInserted.password = await  bcrypt.hash(userToBeInserted.password, 8);
     let user = await dbService.updateOne(User, { 'username':'Caleb.Erdman69' }, userToBeInserted,  { upsert: true });
     userToBeInserted = {
