@@ -115,5 +115,5 @@ schema.method('toJSON', function () {
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const user = mongoose.model('user',schema);
-module.exports = user;
+const User = mongoose.model('user',schema);
+module.exports = User;
