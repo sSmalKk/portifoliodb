@@ -12,8 +12,6 @@ const RouteRole = require('../model/routeRole');
 const UserRole = require('../model/userRole');
 const { replaceAll } = require('../utils/common');
 const dbService = require('../utils/dbService');
-const Chat_group = require('../model/Chat_group');
-/* seeds default users */
 
 /* seeds default users */
 async function seedUser () {
@@ -27,54 +25,8 @@ async function seedUser () {
       'isActive':true,
       'userType':authConstant.USER_TYPES.User
     };
-    async function createGlobalChat() {
-      try {
-        // Verificar se o grupo já existe
-        const existingGroup = await Chat_group.findOne({
-          id: '000000000000000000',
-          name: 'Global Chat', code: '0-0-0'
-        });
-        if (existingGroup) {
-          console.log('Chat global já existe.');
-          return;
-        }
-
-        // Criar o grupo de chat global
-        const globalChatGroup = new Chat_group({
-          id: '000000000000000000',
-          name: 'Global Chat',
-          code: '0-0-0',
-          admin: userToBeInserted.username,
-          member: [userToBeInserted.email],
-          isActive: true,
-          tick: 0, // Inicializa com 0
-          data: [], // Inicializa sem mensagens
-        });
-
-        const savedGroup = await globalChatGroup.save();
-        console.log('Grupo de chat global criado:', savedGroup);
-
-        // Criar uma mensagem inicial no grupo
-        const welcomeMessage = new Chat_message({
-          message: 'Bem-vindo ao chat global!',
-          sender: userToBeInserted.username,
-          groupId: savedGroup._id,
-          isActive: true,
-          addedBy: userToBeInserted.username,
-        });
-
-        const savedMessage = await welcomeMessage.save();
-        console.log('Mensagem inicial criada:', savedMessage);
-      } catch (error) {
-        console.error('Erro ao criar o chat global:', error.message);
-      }
-    }
-
-    // Executar a função
-    createGlobalChat();
-    userToBeInserted.password = await bcrypt.hash(userToBeInserted.password, 8);
-    userToBeInserted.password = await bcrypt.hash(userToBeInserted.password, 8);
-    let user = await dbService.updateOne(User, { 'username': 'Caleb.Erdman69' }, userToBeInserted, { upsert: true });
+    userToBeInserted.password = await  bcrypt.hash(userToBeInserted.password, 8);
+    let user = await dbService.updateOne(User, { 'username':'Caleb.Erdman69' }, userToBeInserted,  { upsert: true });
     userToBeInserted = {
       'password':'H97DmukSybXgJTz',
       'isDeleted':false,
