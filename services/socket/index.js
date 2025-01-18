@@ -11,40 +11,56 @@ const players = {};
 let debugInterval = null;
 
 module.exports = function (httpServer) {
-  const io = require('socket.io')(httpServer, { cors: { origin: '*' } });
+  const io = require('socket.io')(5000, {
+    cors: { origin: '*' },
+  });
 
   io.on('connection', (socket) => {
-    // Envia o tick global atual ao conectar
-    const currentTick = serverClock.getCurrentTick();
-    const playerClock = new PlayerClock(currentTick);
 
-    players[socket.id] = playerClock;
+    io.on('connection', (socket) => {
+      console.log('Novo cliente conectado.');
 
-    socket.emit('sync', {
-      serverTick: currentTick,
-      worldDate: serverClock.getWorldDate().format(),
-    });
+      const currentTick = serverClock.getCurrentTick();
+      const playerClock = new PlayerClock(currentTick);
 
-    // Inicia o relógio do jogador
-    playerClock.start();
+      players[socket.id] = playerClock;
 
-    // Evento personalizado: Recebe dados e atualiza o banco
-    socket.on('event', async (data) => {
-      if (data.message) {
-        const user = await dbService.findOne(socketData, { message: data.message });
-        if (user) {
-          await dbService.updateOne(socketData, { message: data.message }, { socketId: socket.id });
+      socket.emit('sync', {
+        serverTick: currentTick,
+        worldDate: serverClock.getWorldDate().format(),
+      });
+
+      // Inicia o relógio do jogador
+      playerClock.start();
+
+      // Evento personalizado: Recebe dados e atualiza o banco
+      socket.on('event', async (data) => {
+        if (data.message) {
+          const user = await dbService.findOne(socketData, { message: data.message });
+          if (user) {
+            await dbService.updateOne(socketData, { message: data.message }, { socketId: socket.id });
+          } else {
+            const input = new socketData({
+              message: data.message,
+              socketId: socket.id,
+            });
+            await dbService.create(socketData, input);
+          }
         } else {
-          const input = new socketData({
-            message: data.message,
-            socketId: socket.id,
-          });
+          const input = new socketData({ socketId: socket.id });
           await dbService.create(socketData, input);
         }
-      } else {
-        const input = new socketData({ socketId: socket.id });
-        await dbService.create(socketData, input);
-      }
+      });
+      // Recebe mensagem global e envia para todos os clientes
+      socket.on('sendGlobalMessage', ({ message }) => {
+        const formattedMessage = { sender: 'User', text: message };
+        io.emit('receiveGlobalMessage', formattedMessage);
+        console.log('Mensagem global enviada:', formattedMessage);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Cliente desconectado.');
+      });
     });
 
     // Desconexão do jogador
