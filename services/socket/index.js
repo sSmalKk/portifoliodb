@@ -1,8 +1,7 @@
 const ServerClock = require('../../model/ServerClock');
 const PlayerClock = require('../../model/PlayerClock');
-const socketData = require('../../model/socketData');
+const ChatMessage = require('../../model/ChatMessage');
 const dbService = require('../../utils/dbService');
-const axios = require('axios');
 
 // Inicialização do relógio global
 const serverClock = new ServerClock('2025-01-18T00:00:00Z');
@@ -34,16 +33,13 @@ module.exports = function (httpServer) {
     // Inicia o relógio do jogador
     playerClock.start();
 
-    // Carrega mensagens antigas ao conectar
-    const chatMessages = await axios.post('http://localhost:5000/client/api/v1/chat_message/list', {
-      query: {},
-      options: {
-        sort: { createdAt: 1 }, // Ordena por data de criação (mais antigas primeiro)
-        limit: 50, // Limite de mensagens a retornar
-      },
+    // Carrega mensagens antigas diretamente do banco ao conectar
+    const chatMessages = await dbService.findMany(ChatMessage, {}, {
+      sort: { createdAt: 1 }, // Ordena por data de criação (mais antigas primeiro)
+      limit: 50,             // Limite de mensagens a retornar
     });
 
-    socket.emit('loadMessages', chatMessages.data.data);
+    socket.emit('loadMessages', chatMessages);
 
     // Recebe mensagem global e envia para todos os clientes
     socket.on('sendGlobalMessage', async ({ message }) => {
@@ -53,10 +49,10 @@ module.exports = function (httpServer) {
         createdAt: new Date().toISOString(),
       };
 
-      // Armazena a mensagem no banco via API
-      await axios.post('http://localhost:5000/admin/chat_message/list', {
-        message,
-        sender: 'Usuário',
+      // Armazena a mensagem diretamente no banco
+      await dbService.create(ChatMessage, {
+        message: formattedMessage.text,
+        sender: formattedMessage.sender,
         recipient: 'Global',
         createdAt: formattedMessage.createdAt,
       });
