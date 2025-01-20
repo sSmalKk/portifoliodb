@@ -1,6 +1,7 @@
 const ServerClock = require('../../model/ServerClock');
 const PlayerClock = require('../../model/PlayerClock');
-const ChatMessage = require('../../model/ChatMessage');
+const socketData = require('../../model/socketData');
+const chatMessageModel = require('../../model/ChatMessage'); // Modelo direto do banco
 const dbService = require('../../utils/dbService');
 
 // Inicialização do relógio global
@@ -16,11 +17,11 @@ module.exports = function (httpServer) {
   });
 
   io.on('connection', async (socket) => {
-    console.log('Novo cliente conectado.');
+    console.log(`Novo cliente conectado: ${socket.id}`);
 
+    // Inicializa o relógio do jogador
     const currentTick = serverClock.getCurrentTick();
     const playerClock = new PlayerClock(currentTick);
-
     players[socket.id] = playerClock;
 
     // Sincroniza o tick e a data do mundo com o cliente
@@ -33,10 +34,10 @@ module.exports = function (httpServer) {
     // Inicia o relógio do jogador
     playerClock.start();
 
-    // Carrega mensagens antigas diretamente do banco ao conectar
-    const chatMessages = await dbService.findMany(ChatMessage, {}, {
-      sort: { createdAt: 1 }, // Ordena por data de criação (mais antigas primeiro)
-      limit: 50,             // Limite de mensagens a retornar
+    // Carrega mensagens antigas diretamente do banco
+    const chatMessages = await dbService.find(chatMessageModel, {}, {
+      sort: { createdAt: 1 }, // Ordena por data de criação
+      limit: 50, // Limite de mensagens
     });
 
     socket.emit('loadMessages', chatMessages);
@@ -49,21 +50,24 @@ module.exports = function (httpServer) {
         createdAt: new Date().toISOString(),
       };
 
-      // Armazena a mensagem diretamente no banco
-      await dbService.create(ChatMessage, {
+      // Salva a mensagem diretamente no banco
+      const messageToSave = new chatMessageModel({
         message: formattedMessage.text,
         sender: formattedMessage.sender,
         recipient: 'Global',
         createdAt: formattedMessage.createdAt,
       });
 
+      await dbService.create(chatMessageModel, messageToSave);
+
+      // Envia a mensagem para todos os clientes conectados
       io.emit('receiveGlobalMessage', formattedMessage);
       console.log('Mensagem global enviada:', formattedMessage);
     });
 
-    // Desconexão do jogador
+    // Gerencia a desconexão do jogador
     socket.on('disconnect', () => {
-      console.log('Cliente desconectado.');
+      console.log(`Cliente desconectado: ${socket.id}`);
       playerClock.stop();
       delete players[socket.id];
 
@@ -89,6 +93,6 @@ module.exports = function (httpServer) {
       console.log('Player Ticks:', playerData);
       console.log('World Date:', serverClock.getWorldDate().format());
       console.log('------------------');
-    }, 1000); // Executa a cada 1 segundo (ajustável)
+    }, 1000); // Executa a cada 1 segundo
   }
 };
