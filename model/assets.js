@@ -6,6 +6,7 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 let idValidator = require('mongoose-id-validator');
+const { stringify } = require('node:querystring');
 const myCustomLabels = {
   totalDocs: 'itemCount',
   docs: 'data',
@@ -23,9 +24,9 @@ const schema = new Schema(
   {
     name: { type: String, required: true }, // Nome do asset
     type: { type: String, enum: ['image', 'video', 'audio', 'document'], required: true }, // Tipo do asset
-    url: { type: String, required: true }, // URL do asset
-    linkedModel: { type: String, required: true }, // Modelo ao qual o asset está vinculado
-    linkedId: { type: mongoose.Schema.Types.ObjectId, required: true }, // ID do objeto vinculado
+    url: { type: stringify }, // URL do asset
+    linkedModel: { type: String }, // Modelo ao qual o asset está vinculado
+    linkedId: { type: mongoose.Schema.Types.ObjectId }, // ID do objeto vinculado
 
     isDeleted: { type: Boolean },
 
