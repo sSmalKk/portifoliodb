@@ -29,7 +29,6 @@ const schema = new Schema(
     createdAt: { type: Date },
 
     updatedAt: { type: Date },
-    img: { type: String },
     addedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User'
