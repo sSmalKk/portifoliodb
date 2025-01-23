@@ -2109,62 +2109,62 @@ async function seedRouteRole() {
       },
       {
         route: '/admin/assets/create',
-        role: 'System_User',
+        role: 'Admin',
         method: 'POST'
       },
       {
         route: '/admin/assets/addbulk',
-        role: 'System_User',
+        role: 'Admin',
         method: 'POST'
       },
       {
         route: '/admin/assets/list',
-        role: 'System_User',
+        role: 'Admin',
         method: 'POST'
       },
       {
         route: '/admin/assets/:id',
-        role: 'System_User',
+        role: 'Admin',
         method: 'GET'
       },
       {
         route: '/admin/assets/count',
-        role: 'System_User',
+        role: 'Admin',
         method: 'POST'
       },
       {
         route: '/admin/assets/update/:id',
-        role: 'System_User',
+        role: 'Admin',
         method: 'PUT'
       },
       {
         route: '/admin/assets/partial-update/:id',
-        role: 'System_User',
+        role: 'Admin',
         method: 'PUT'
       },
       {
         route: '/admin/assets/updatebulk',
-        role: 'System_User',
+        role: 'Admin',
         method: 'PUT'
       },
       {
         route: '/admin/assets/softdelete/:id',
-        role: 'System_User',
+        role: 'Admin',
         method: 'PUT'
       },
       {
         route: '/admin/assets/softdeletemany',
-        role: 'System_User',
+        role: 'Admin',
         method: 'PUT'
       },
       {
         route: '/admin/assets/delete/:id',
-        role: 'System_User',
+        role: 'Admin',
         method: 'DELETE'
       },
       {
         route: '/admin/assets/deletemany',
-        role: 'System_User',
+        role: 'Admin',
         method: 'POST'
       },
       {
