@@ -1,6 +1,6 @@
 /**
- * Chunk.js
- * @description :: model of a database collection Chunk
+ * Server.js
+ * @description :: model of a database collection Server
  */
 
 const mongoose = require('mongoose');
@@ -22,6 +22,10 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
+    Name:{ type:String },
+
+    Img:{ type:String },
+
     isDeleted:{ type:Boolean },
 
     isActive:{ type:Boolean },
@@ -38,17 +42,7 @@ const schema = new Schema(
     updatedBy:{
       type:Schema.Types.ObjectId,
       ref:'User'
-    },
-
-    x:{ type:Number },
-
-    y:{ type:String },
-
-    z:{ type:String },
-
-    chunk:{ type:Array },
-
-    entities:{ type:Array }
+    }
   }
   ,{ 
     timestamps: { 
@@ -84,5 +78,5 @@ schema.method('toJSON', function () {
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const Chunk = mongoose.model('Chunk',schema);
-module.exports = Chunk;
+const Server = mongoose.model('Server',schema);
+module.exports = Server;

@@ -6,8 +6,6 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 let idValidator = require('mongoose-id-validator');
-
-// Configurando labels customizados para paginação
 const myCustomLabels = {
   totalDocs: 'itemCount',
   docs: 'data',
@@ -20,66 +18,61 @@ const myCustomLabels = {
   meta: 'paginator',
 };
 mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
-
 const Schema = mongoose.Schema;
-
 const schema = new Schema(
   {
-    name: { type: String, required: true }, // Nome do tamanho
-    largerID: { type: Schema.Types.ObjectId, ref: 'size', default: null }, // Referência ao tamanho maior
-    smallerID: { type: Schema.Types.ObjectId, ref: 'size', default: null }, // Referência ao tamanho menor
-    linkedSizes: [{ type: Schema.Types.ObjectId, ref: 'size', default: [] }], // Lista de tamanhos relacionados
 
-    isDeleted: { type: Boolean, default: false },
-    isActive: { type: Boolean, default: true },
+    isDeleted:{ type:Boolean },
 
-    createdAt: { type: Date },
-    updatedAt: { type: Date },
+    isActive:{ type:Boolean },
 
-    addedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
-    updatedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
-  },
-  {
-    timestamps: {
-      createdAt: 'createdAt',
-      updatedAt: 'updatedAt',
+    createdAt:{ type:Date },
+
+    updatedAt:{ type:Date },
+
+    addedBy:{
+      type:Schema.Types.ObjectId,
+      ref:'User'
     },
+
+    updatedBy:{
+      type:Schema.Types.ObjectId,
+      ref:'User'
+    }
+  }
+  ,{ 
+    timestamps: { 
+      createdAt: 'createdAt', 
+      updatedAt: 'updatedAt' 
+    } 
   }
 );
-
-
-
-// Middleware para setar valores padrão antes de salvar
 schema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.isDeleted = false;
-    this.isActive = true;
-  }
+  this.isDeleted = false;
+  this.isActive = true;
   next();
 });
 
-// Middleware para setar valores padrão em operações de insertMany
 schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length) {
-    docs.forEach((doc) => {
-      doc.isDeleted = false;
-      doc.isActive = true;
-    });
+  if (docs && docs.length){
+    for (let index = 0; index < docs.length; index++) {
+      const element = docs[index];
+      element.isDeleted = false;
+      element.isActive = true;
+    }
   }
   next();
 });
 
-// Transformação JSON para ocultar campos indesejados
 schema.method('toJSON', function () {
-  const { _id, __v, ...object } = this.toObject({ virtuals: true });
+  const {
+    _id, __v, ...object 
+  } = this.toObject({ virtuals:true });
   object.id = _id;
+     
   return object;
 });
-
-// Adicionando plugins de paginação e validação de referência
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-
-// Criando e exportando o modelo
-const size = mongoose.model('size', schema);
+const size = mongoose.model('size',schema);
 module.exports = size;
