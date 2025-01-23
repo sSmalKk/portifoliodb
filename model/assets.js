@@ -27,7 +27,8 @@ const schema = new Schema(
     url: { type: String }, // URL do asset
     linkedModel: { type: String }, // Modelo ao qual o asset está vinculado
     linkedId: { type: String }, // ID do objeto vinculado
-
+    image: { type: String }, // ID do objeto vinculado
+    
     isDeleted: { type: Boolean },
 
     isActive: { type: Boolean },
