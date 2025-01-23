@@ -30,25 +30,25 @@ beforeAll(async function (){
 
     const User = dbInstance.collection('Users');
     insertedUser = await User.insertOne({
-      username: 'Eliezer_Daniel44',
-      password: 'ds1eFoiEpUds9AB',
-      email: 'Violette.Murray97@yahoo.com',
-      name: 'Shelly Effertz V',
-      userType: 641,
-      x: 68,
-      y: 18,
-      z: 830,
-      vx: 'Gorgeous',
-      vy: 'streamline',
-      vz: 'Argentine',
-      rx: 'one-to-one',
-      ry: 'holistic',
-      rz: 'Computers',
-      mobileNo: '(841) 544-6757',
+      username: 'Jeanne.Jones89',
+      password: 'kaAQ5qQZc8gmUpk',
+      email: 'Moses.Wunsch1@yahoo.com',
+      name: 'Luke Herzog',
+      userType: 160,
+      x: 214,
+      y: 843,
+      z: 405,
+      vx: 'Wyoming',
+      vy: 'withdrawal',
+      vz: 'Practical',
+      rx: 'Islands',
+      ry: 'product',
+      rz: 'robust',
+      mobileNo: '(594) 623-8944',
       resetPasswordLink: {},
-      loginRetryLimit: 294,
-      loginReactiveTime: '2025-07-12T19:05:30.432Z',
-      id: '67883d01eef3dd17bfd0e822'
+      loginRetryLimit: 14,
+      loginReactiveTime: '2025-02-18T16:32:00.385Z',
+      id: '6792498f8839cc004e12725a'
     });
   }
   catch (error) {
@@ -66,21 +66,21 @@ describe('POST /register -> if email and username is given', () => {
     let registeredUser = await request(app)
       .post('/admin/auth/register')
       .send({
-        'username':'Vincenzo_Kling',
-        'password':'tYAAlz30snr8lLa',
-        'email':'Gustave.Huels16@gmail.com',
-        'name':'Della Hermiston',
+        'username':'Alec_Goldner',
+        'password':'9EeOZnBjdoax1QI',
+        'email':'Krystal98@hotmail.com',
+        'name':'Kellie Roberts',
         'userType':authConstant.USER_TYPES.Admin,
-        'x':628,
-        'y':969,
-        'z':42,
-        'vx':'Pants',
-        'vy':'Congolese',
-        'vz':'Unbranded',
-        'rx':'Account',
-        'ry':'communities',
-        'rz':'Avon',
-        'mobileNo':'(457) 166-2513',
+        'x':725,
+        'y':494,
+        'z':109,
+        'vx':'Down-sized',
+        'vy':'Rubber',
+        'vz':'program',
+        'rx':'Lats',
+        'ry':'York',
+        'rz':'strategize',
+        'mobileNo':'(135) 171-7226',
         'addedBy':insertedUser.insertedId,
         'updatedBy':insertedUser.insertedId
       });
@@ -96,8 +96,8 @@ describe('POST /login -> if username and password is correct', () => {
       .post('/admin/auth/login')
       .send(
         {
-          username: 'Vincenzo_Kling',
-          password: 'tYAAlz30snr8lLa'
+          username: 'Alec_Goldner',
+          password: '9EeOZnBjdoax1QI'
         }
       );
     expect(User.statusCode).toBe(200);
@@ -116,7 +116,7 @@ describe('POST /login -> if username is incorrect', () => {
       .send(
         {
           username: 'wrong.username',
-          password: 'tYAAlz30snr8lLa'
+          password: '9EeOZnBjdoax1QI'
         }
       );
 
@@ -131,7 +131,7 @@ describe('POST /login -> if password is incorrect', () => {
       .post('/admin/auth/login')
       .send(
         {
-          username: 'Vincenzo_Kling',
+          username: 'Alec_Goldner',
           password: 'wrong@password'
         }
       );
@@ -178,7 +178,7 @@ describe('POST /forgot-password -> if email passed from request body is valid an
   test('should return success message', async () => {
     let User = await request(app)
       .post('/admin/auth/forgot-password')
-      .send({ 'email':'Gustave.Huels16@gmail.com', });
+      .send({ 'email':'Krystal98@hotmail.com', });
 
     expect(User.statusCode).toBe(200);
     expect(User.body.status).toBe('SUCCESS');
@@ -191,8 +191,8 @@ describe('POST /validate-otp -> OTP is sent in request body and OTP is correct',
       .post('/admin/auth/login')
       .send(
         {
-          username: 'Vincenzo_Kling',
-          password: 'tYAAlz30snr8lLa'
+          username: 'Alec_Goldner',
+          password: '9EeOZnBjdoax1QI'
         }).then(login => () => {
         return request(app)
           .get(`/admin/User/${login.body.data.id}`)
@@ -240,8 +240,8 @@ describe('PUT /reset-password -> code is sent in request body and code is correc
       .post('/admin/auth/login')
       .send(
         {
-          username: 'Vincenzo_Kling',
-          password: 'tYAAlz30snr8lLa'
+          username: 'Alec_Goldner',
+          password: '9EeOZnBjdoax1QI'
         }).then(login => () => {
         return request(app)
           .get(`/admin/User/${login.body.data.id}`)
