@@ -21,7 +21,7 @@ mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
 const Schema = mongoose.Schema;
 const schema = new Schema(
   {
-    imgIds: { type: String },
+    image: { type: String },
 
     isDeleted: { type: Boolean },
 

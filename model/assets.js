@@ -24,7 +24,7 @@ const schema = new Schema(
   {
     name: { type: String, required: true }, // Nome do asset
     type: { type: String, enum: ['image', 'video', 'audio', 'document'], required: true }, // Tipo do asset
-    url: { type: stringify }, // URL do asset
+    url: { type: String }, // URL do asset
     linkedModel: { type: String }, // Modelo ao qual o asset está vinculado
     linkedId: { type: mongoose.Schema.Types.ObjectId }, // ID do objeto vinculado
 
