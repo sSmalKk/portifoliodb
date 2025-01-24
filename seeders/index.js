@@ -14,24 +14,55 @@ const { replaceAll } = require('../utils/common');
 const dbService = require('../utils/dbService');
 
 /* seeds default users */
-async function seedUser () {
+/* seeds default users */
+async function seedUser() {
   try {
-    let userToBeInserted = {};
-    userToBeInserted = {
-      'password':'J8QnRQgyb2Cre2a',
-      'isDeleted':false,
-      'username':'Humberto_Conn47',
-      'email':'Dallas96@yahoo.com',
-      'isActive':true,
-      'userType':authConstant.USER_TYPES.User
-    };
-    userToBeInserted.password = await  bcrypt.hash(userToBeInserted.password, 8);
-    let user = await dbService.updateOne(User, { 'username':'Humberto_Conn47' }, userToBeInserted,  { upsert: true });
+    const users = [
+      {
+        'password': 'J8QnRQgyb2Cre2a',
+        'isDeleted': false,
+        'username': 'Humberto_Conn47',
+        'email': 'Dallas96@yahoo.com',
+        'isActive': true,
+        'userType': authConstant.USER_TYPES.User
+      },
+      {
+        'password': 'AdminPass123',
+        'isDeleted': false,
+        'username': 'Admin_User',
+        'email': 'admin@example.com',
+        'isActive': true,
+        'userType': authConstant.USER_TYPES.Admin
+      },
+      {
+        'password': 'Translator123',
+        'isDeleted': false,
+        'username': 'Translator_User',
+        'email': 'translator@example.com',
+        'isActive': true,
+        'userType': authConstant.USER_TYPES.Tradutor
+      },
+      {
+        'password': 'SystemPass123',
+        'isDeleted': false,
+        'username': 'System_User',
+        'email': 'system@example.com',
+        'isActive': true,
+        'userType': authConstant.USER_TYPES.System_User
+      }
+    ];
+
+    for (const user of users) {
+      user.password = await bcrypt.hash(user.password, 8);
+      await dbService.updateOne(User, { 'username': user.username }, user, { upsert: true });
+    }
+
     console.info('Users seeded 🍺');
-  } catch (error){
+  } catch (error) {
     console.log('User seeder failed due to ', error.message);
   }
 }
+
 /* seeds roles */
 async function seedRole () {
   try {
