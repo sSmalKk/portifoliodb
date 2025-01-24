@@ -103,129 +103,130 @@ async function seedProjectRoutes(routes) {
   }
 }
 
+
 /* seeds role for routes */
-async function seedRouteRole() {
+async function seedRouteRole () {
   try {
-    const routeRoles = [
+    const routeRoles = [ 
       {
         route: '/admin/chat/create',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/create',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/addbulk',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/addbulk',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/list',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/list',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/:id',
         role: 'Client',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chat/:id',
         role: 'User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chat/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chat/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chat/count',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/count',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/update/:id',
         role: 'Client',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/update/:id',
         role: 'User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/update/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/partial-update/:id',
@@ -250,32 +251,32 @@ async function seedRouteRole() {
       {
         route: '/admin/chat/updatebulk',
         role: 'Client',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/updatebulk',
         role: 'User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/updatebulk',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/softdelete/:id',
         role: 'Client',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/softdelete/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/softdelete/:id',
@@ -285,12 +286,12 @@ async function seedRouteRole() {
       {
         route: '/admin/chat/softdeletemany',
         role: 'Client',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/softdeletemany',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chat/softdeletemany',
@@ -300,12 +301,12 @@ async function seedRouteRole() {
       {
         route: '/admin/chat/delete/:id',
         role: 'Client',
-        method: 'DELETE'
+        method: 'DELETE' 
       },
       {
         route: '/admin/chat/delete/:id',
         role: 'Admin',
-        method: 'DELETE'
+        method: 'DELETE' 
       },
       {
         route: '/admin/chat/delete/:id',
@@ -315,12 +316,12 @@ async function seedRouteRole() {
       {
         route: '/admin/chat/deletemany',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/deletemany',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat/deletemany',
@@ -330,17 +331,17 @@ async function seedRouteRole() {
       {
         route: '/admin/chat_message/create',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/create',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/create',
@@ -355,12 +356,12 @@ async function seedRouteRole() {
       {
         route: '/admin/chat_message/addbulk',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/addbulk',
@@ -370,17 +371,17 @@ async function seedRouteRole() {
       {
         route: '/admin/chat_message/list',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/list',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/list',
@@ -390,17 +391,17 @@ async function seedRouteRole() {
       {
         route: '/admin/chat_message/:id',
         role: 'Client',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chat_message/:id',
         role: 'User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chat_message/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chat_message/:id',
@@ -410,17 +411,17 @@ async function seedRouteRole() {
       {
         route: '/admin/chat_message/count',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/count',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chat_message/count',
@@ -550,57 +551,57 @@ async function seedRouteRole() {
       {
         route: '/admin/chunk/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chunk/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/chunk/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/update/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chunk/update/:id',
@@ -620,7 +621,7 @@ async function seedRouteRole() {
       {
         route: '/admin/chunk/updatebulk',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chunk/updatebulk',
@@ -630,7 +631,7 @@ async function seedRouteRole() {
       {
         route: '/admin/chunk/softdelete/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chunk/softdelete/:id',
@@ -640,7 +641,7 @@ async function seedRouteRole() {
       {
         route: '/admin/chunk/softdeletemany',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/chunk/softdeletemany',
@@ -650,7 +651,7 @@ async function seedRouteRole() {
       {
         route: '/admin/chunk/delete/:id',
         role: 'Admin',
-        method: 'DELETE'
+        method: 'DELETE' 
       },
       {
         route: '/admin/chunk/delete/:id',
@@ -660,7 +661,7 @@ async function seedRouteRole() {
       {
         route: '/admin/chunk/deletemany',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/chunk/deletemany',
@@ -670,62 +671,62 @@ async function seedRouteRole() {
       {
         route: '/admin/user/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/user/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/user/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/update/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/user/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/user/partial-update/:id',
@@ -740,17 +741,17 @@ async function seedRouteRole() {
       {
         route: '/admin/user/updatebulk',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/user/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/user/softdelete/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/user/softdelete/:id',
@@ -760,7 +761,7 @@ async function seedRouteRole() {
       {
         route: '/admin/user/softdeletemany',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/user/softdeletemany',
@@ -770,7 +771,7 @@ async function seedRouteRole() {
       {
         route: '/admin/user/delete/:id',
         role: 'Admin',
-        method: 'DELETE'
+        method: 'DELETE' 
       },
       {
         route: '/admin/user/delete/:id',
@@ -780,7 +781,7 @@ async function seedRouteRole() {
       {
         route: '/admin/user/deletemany',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/user/deletemany',
@@ -790,7 +791,7 @@ async function seedRouteRole() {
       {
         route: '/admin/blockstate/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blockstate/create',
@@ -800,7 +801,7 @@ async function seedRouteRole() {
       {
         route: '/admin/blockstate/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blockstate/addbulk',
@@ -810,7 +811,7 @@ async function seedRouteRole() {
       {
         route: '/admin/blockstate/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blockstate/list',
@@ -820,17 +821,17 @@ async function seedRouteRole() {
       {
         route: '/admin/blockstate/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/blockstate/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/blockstate/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blockstate/count',
@@ -840,7 +841,7 @@ async function seedRouteRole() {
       {
         route: '/admin/blockstate/update/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/blockstate/update/:id',
@@ -860,7 +861,7 @@ async function seedRouteRole() {
       {
         route: '/admin/blockstate/updatebulk',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/blockstate/updatebulk',
@@ -910,7 +911,7 @@ async function seedRouteRole() {
       {
         route: '/admin/material/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/material/create',
@@ -920,7 +921,7 @@ async function seedRouteRole() {
       {
         route: '/admin/material/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/material/addbulk',
@@ -930,37 +931,37 @@ async function seedRouteRole() {
       {
         route: '/admin/material/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/material/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/material/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/material/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/material/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/material/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/material/update/:id',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/material/update/:id',
@@ -980,7 +981,7 @@ async function seedRouteRole() {
       {
         route: '/admin/material/updatebulk',
         role: 'Admin',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/material/updatebulk',
@@ -1020,7 +1021,7 @@ async function seedRouteRole() {
       {
         route: '/admin/material/deletemany',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/material/deletemany',
@@ -1030,27 +1031,27 @@ async function seedRouteRole() {
       {
         route: '/admin/server/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/server/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/server/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/server/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/server/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/server/update/:id',
@@ -1090,7 +1091,7 @@ async function seedRouteRole() {
       {
         route: '/admin/console/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/console/addbulk',
@@ -1100,17 +1101,17 @@ async function seedRouteRole() {
       {
         route: '/admin/console/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/console/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/console/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/console/update/:id',
@@ -1165,7 +1166,7 @@ async function seedRouteRole() {
       {
         route: '/admin/entitybody/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/entitybody/count',
@@ -1210,27 +1211,27 @@ async function seedRouteRole() {
       {
         route: '/admin/organ/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/organ/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/organ/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/organ/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/organ/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/organ/update/:id',
@@ -1270,27 +1271,27 @@ async function seedRouteRole() {
       {
         route: '/admin/member/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/member/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/member/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/member/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/member/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/member/update/:id',
@@ -1330,32 +1331,32 @@ async function seedRouteRole() {
       {
         route: '/admin/blog/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blog/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blog/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blog/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/blog/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/blog/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/blog/partial-update/:id',
@@ -1365,7 +1366,7 @@ async function seedRouteRole() {
       {
         route: '/admin/blog/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/blog/softdelete/:id',
@@ -1390,7 +1391,7 @@ async function seedRouteRole() {
       {
         route: '/admin/comment/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/comment/addbulk',
@@ -1400,17 +1401,17 @@ async function seedRouteRole() {
       {
         route: '/admin/comment/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/comment/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/comment/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/comment/update/:id',
@@ -1450,32 +1451,32 @@ async function seedRouteRole() {
       {
         route: '/admin/part/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/part/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/part/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/part/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/part/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/part/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/part/partial-update/:id',
@@ -1485,7 +1486,7 @@ async function seedRouteRole() {
       {
         route: '/admin/part/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/part/softdelete/:id',
@@ -1525,7 +1526,7 @@ async function seedRouteRole() {
       {
         route: '/admin/custommodel/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/custommodel/count',
@@ -1570,32 +1571,32 @@ async function seedRouteRole() {
       {
         route: '/admin/pack/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/pack/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/pack/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/pack/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/pack/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/pack/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/pack/partial-update/:id',
@@ -1605,7 +1606,7 @@ async function seedRouteRole() {
       {
         route: '/admin/pack/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/pack/softdelete/:id',
@@ -1640,12 +1641,12 @@ async function seedRouteRole() {
       {
         route: '/admin/substance/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/substance/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/substance/count',
@@ -1750,27 +1751,27 @@ async function seedRouteRole() {
       {
         route: '/admin/model/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/model/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/model/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/model/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/model/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/model/update/:id',
@@ -1810,7 +1811,7 @@ async function seedRouteRole() {
       {
         route: '/admin/texture/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/texture/addbulk',
@@ -1820,17 +1821,17 @@ async function seedRouteRole() {
       {
         route: '/admin/texture/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/texture/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/texture/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/texture/update/:id',
@@ -1930,27 +1931,27 @@ async function seedRouteRole() {
       {
         route: '/admin/entity/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/entity/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/entity/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/entity/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/entity/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/entity/update/:id',
@@ -1990,32 +1991,32 @@ async function seedRouteRole() {
       {
         route: '/admin/size/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/size/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/size/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/size/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/size/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/size/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/size/partial-update/:id',
@@ -2025,7 +2026,7 @@ async function seedRouteRole() {
       {
         route: '/admin/size/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/size/softdelete/:id',
@@ -2060,12 +2061,12 @@ async function seedRouteRole() {
       {
         route: '/admin/interface/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/interface/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/interface/count',
@@ -2109,94 +2110,93 @@ async function seedRouteRole() {
       },
       {
         route: '/admin/assets/create',
-        role: 'Admin',
-        method: 'POST'
+        role: 'System_User',
+        method: 'POST' 
       },
       {
         route: '/admin/assets/addbulk',
-        role: 'Admin',
-        method: 'POST'
+        role: 'System_User',
+        method: 'POST' 
       },
       {
         route: '/admin/assets/list',
-        role: 'Admin',
-        method: 'POST'
+        role: 'System_User',
+        method: 'POST' 
       },
       {
         route: '/admin/assets/:id',
-        role: 'Admin',
-        method: 'GET'
+        role: 'System_User',
+        method: 'GET' 
       },
       {
         route: '/admin/assets/count',
-        role: 'Admin',
-        method: 'POST'
+        role: 'System_User',
+        method: 'POST' 
       },
       {
         route: '/admin/assets/update/:id',
-        role: 'Admin',
+        role: 'System_User',
         method: 'PUT'
       },
       {
         route: '/admin/assets/partial-update/:id',
-        role: 'Admin',
+        role: 'System_User',
         method: 'PUT'
       },
       {
         route: '/admin/assets/updatebulk',
-        role: 'Admin',
+        role: 'System_User',
         method: 'PUT'
       },
       {
         route: '/admin/assets/softdelete/:id',
-        role: 'Admin',
+        role: 'System_User',
         method: 'PUT'
       },
       {
         route: '/admin/assets/softdeletemany',
-        role: 'Admin',
+        role: 'System_User',
         method: 'PUT'
       },
       {
         route: '/admin/assets/delete/:id',
-        role: 'Admin',
+        role: 'System_User',
         method: 'DELETE'
       },
       {
         route: '/admin/assets/deletemany',
-        role: 'Admin',
+        role: 'System_User',
         method: 'POST'
       },
       {
         route: '/admin/item/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
-
       {
         route: '/admin/item/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/item/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/item/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/item/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/item/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/item/partial-update/:id',
@@ -2206,7 +2206,7 @@ async function seedRouteRole() {
       {
         route: '/admin/item/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/item/softdelete/:id',
@@ -2228,69 +2228,6 @@ async function seedRouteRole() {
         role: 'System_User',
         method: 'POST'
       },
-      //t//
-      {
-        route: '/admin/item/create',
-        role: 'Admin',
-        method: 'POST'
-      },
-
-      {
-        route: '/admin/item/addbulk',
-        role: 'Admin',
-        method: 'POST'
-      },
-      {
-        route: '/admin/item/list',
-        role: 'Admin',
-        method: 'POST'
-      },
-      {
-        route: '/admin/item/:id',
-        role: 'Admin',
-        method: 'GET'
-      },
-      {
-        route: '/admin/item/count',
-        role: 'Admin',
-        method: 'POST'
-      },
-      {
-        route: '/admin/item/update/:id',
-        role: 'Admin',
-        method: 'PUT'
-      },
-      {
-        route: '/admin/item/partial-update/:id',
-        role: 'Admin',
-        method: 'PUT'
-      },
-      {
-        route: '/admin/item/updatebulk',
-        role: 'Admin',
-        method: 'PUT'
-      },
-      {
-        route: '/admin/item/softdelete/:id',
-        role: 'Admin',
-        method: 'PUT'
-      },
-      {
-        route: '/admin/item/softdeletemany',
-        role: 'Admin',
-        method: 'PUT'
-      },
-      {
-        route: '/admin/item/delete/:id',
-        role: 'Admin',
-        method: 'DELETE'
-      },
-      {
-        route: '/admin/item/deletemany',
-        role: 'Admin',
-        method: 'POST'
-      },
-
       {
         route: '/admin/elements/create',
         role: 'System_User',
@@ -2304,17 +2241,17 @@ async function seedRouteRole() {
       {
         route: '/admin/elements/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/elements/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/elements/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/elements/update/:id',
@@ -2364,12 +2301,12 @@ async function seedRouteRole() {
       {
         route: '/admin/parameter/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/parameter/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/parameter/count',
@@ -2429,7 +2366,7 @@ async function seedRouteRole() {
       {
         route: '/admin/usertokens/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/usertokens/count',
@@ -2474,32 +2411,32 @@ async function seedRouteRole() {
       {
         route: '/admin/role/create',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/role/addbulk',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/role/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/role/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/role/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/role/update/:id',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/role/partial-update/:id',
@@ -2509,7 +2446,7 @@ async function seedRouteRole() {
       {
         route: '/admin/role/updatebulk',
         role: 'System_User',
-        method: 'PUT'
+        method: 'PUT' 
       },
       {
         route: '/admin/role/softdelete/:id',
@@ -2604,12 +2541,12 @@ async function seedRouteRole() {
       {
         route: '/admin/routerole/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/routerole/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/routerole/count',
@@ -2664,17 +2601,17 @@ async function seedRouteRole() {
       {
         route: '/admin/userrole/list',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/userrole/:id',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/admin/userrole/count',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/admin/userrole/update/:id',
@@ -2714,17 +2651,17 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chat/create',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/create',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/create',
@@ -2739,12 +2676,12 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chat/addbulk',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/addbulk',
@@ -2754,17 +2691,17 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chat/list',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/list',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/list',
@@ -2774,17 +2711,17 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chat/:id',
         role: 'Client',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/client/api/v1/chat/:id',
         role: 'User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/client/api/v1/chat/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/client/api/v1/chat/:id',
@@ -2794,17 +2731,17 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chat/count',
         role: 'Client',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/count',
         role: 'User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chat/count',
@@ -3154,7 +3091,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chunk/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chunk/create',
@@ -3174,7 +3111,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chunk/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chunk/list',
@@ -3184,7 +3121,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chunk/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/client/api/v1/chunk/:id',
@@ -3194,7 +3131,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/chunk/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/chunk/count',
@@ -3274,7 +3211,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/user/create',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/user/create',
@@ -3284,7 +3221,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/user/addbulk',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/user/addbulk',
@@ -3294,7 +3231,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/user/list',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/user/list',
@@ -3304,7 +3241,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/user/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/client/api/v1/user/:id',
@@ -3314,7 +3251,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/user/count',
         role: 'Admin',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/client/api/v1/user/count',
@@ -3544,7 +3481,7 @@ async function seedRouteRole() {
       {
         route: '/client/api/v1/material/:id',
         role: 'Admin',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/client/api/v1/material/:id',
@@ -5254,24 +5191,24 @@ async function seedRouteRole() {
       {
         route: '/action',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
       {
         route: '/getchunks',
         role: 'System_User',
-        method: 'GET'
+        method: 'GET' 
       },
       {
         route: '/sync',
         role: 'System_User',
-        method: 'POST'
+        method: 'POST' 
       },
 
     ];
     if (routeRoles && routeRoles.length) {
       const routes = [...new Set(routeRoles.map(routeRole => routeRole.route.toLowerCase()))];
       const routeMethods = [...new Set(routeRoles.map(routeRole => routeRole.method))];
-      const roles = ['Client', 'User', 'Admin', 'System_User'];
+      const roles = [ 'Client', 'User', 'Admin', 'System_User' ];
       const insertedProjectRoute = await dbService.findMany(ProjectRoute, {
         uri: { '$in': routes },
         method: { '$in': routeMethods },
@@ -5321,20 +5258,20 @@ async function seedRouteRole() {
         console.log('RouteRole is upto date 🍺');
       }
     }
-  } catch (error) {
+  } catch (error){
     console.log('RouteRole seeder failed due to ', error.message);
   }
 }
 
 /* seeds roles for users */
-async function seedUserRole() {
+async function seedUserRole (){
   try {
     const userRoles = [{
-      'username': 'Caleb.Erdman69',
-      'password': 'QpPCXqEiR8eGjOj'
-    }, {
-      'username': 'Virgil.Jacobi19',
-      'password': 'H97DmukSybXgJTz'
+      'username':'Caleb.Erdman69',
+      'password':'QpPCXqEiR8eGjOj'
+    },{
+      'username':'Virgil.Jacobi19',
+      'password':'H97DmukSybXgJTz'
     }];
     const defaultRoles = await dbService.findMany(Role);
     const insertedUsers = await dbService.findMany(User, { username: { '$in': userRoles.map(userRole => userRole.username) } });
@@ -5343,22 +5280,22 @@ async function seedUserRole() {
     userRoles.map(userRole => {
       user = insertedUsers.find(user => user.username === userRole.username && user.isPasswordMatch(userRole.password) && user.isActive && !user.isDeleted);
       if (user) {
-        if (user.userType === authConstant.USER_TYPES.Admin) {
+        if (user.userType === authConstant.USER_TYPES.Admin){
           userRolesArr.push({
             userId: user.id,
-            roleId: defaultRoles.find((d) => d.code === 'ADMIN')._id
+            roleId: defaultRoles.find((d)=>d.code === 'ADMIN')._id
           });
-        } else if (user.userType === authConstant.USER_TYPES.User) {
+        } else if (user.userType === authConstant.USER_TYPES.User){
           userRolesArr.push({
             userId: user.id,
-            roleId: defaultRoles.find((d) => d.code === 'USER')._id
+            roleId: defaultRoles.find((d)=>d.code === 'USER')._id
           });
         } else {
           userRolesArr.push({
             userId: user.id,
-            roleId: defaultRoles.find((d) => d.code === 'SYSTEM_USER')._id
+            roleId: defaultRoles.find((d)=>d.code === 'SYSTEM_USER')._id
           });
-        }
+        }  
       }
     });
     let userRoleObj = {};
@@ -5390,7 +5327,6 @@ async function seedUserRole() {
     console.log('UserRole seeder failed due to ', error.message);
   }
 }
-
 async function seedData(allRegisterRoutes) {
   await seedUser();
   await seedRole();
