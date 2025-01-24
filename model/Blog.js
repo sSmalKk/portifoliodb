@@ -22,11 +22,13 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
+    name:{ type:String },
+
+    image:{ type:String },
+
     title:{ type:String },
 
     alternativeHeadline:{ type:String },
-
-    image:{ type:String },
 
     publishDate:{ type:String },
 
@@ -64,12 +66,12 @@ const schema = new Schema(
 
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
     addedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     }
   }
   ,{ 

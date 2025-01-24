@@ -39,7 +39,7 @@ const schema = new Schema(
 
     groupId:{
       type:Schema.Types.ObjectId,
-      ref:'Chat'
+      ref:'Chat_group'
     },
 
     isActive:{ type:Boolean },
@@ -50,15 +50,19 @@ const schema = new Schema(
 
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
     addedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
-    isDeleted:{ type:Boolean }
+    isDeleted:{ type:Boolean },
+
+    image:{ type:String },
+
+    name:{ type:String }
   }
   ,{ 
     timestamps: { 

@@ -10,9 +10,10 @@ const {
 
 /** validation keys and properties of Blog */
 exports.schemaKeys = joi.object({
+  name: joi.string().allow(null).allow(''),
+  image: joi.string().allow(null).allow(''),
   title: joi.string().allow(null).allow(''),
   alternativeHeadline: joi.string().allow(null).allow(''),
-  image: joi.string().allow(null).allow(''),
   publishDate: joi.string().allow(null).allow(''),
   author: joi.object({
     name:joi.string(),
@@ -36,9 +37,10 @@ exports.schemaKeys = joi.object({
 
 /** validation keys and properties of Blog for updation */
 exports.updateSchemaKeys = joi.object({
+  name: joi.string().allow(null).allow(''),
+  image: joi.string().allow(null).allow(''),
   title: joi.string().allow(null).allow(''),
   alternativeHeadline: joi.string().allow(null).allow(''),
-  image: joi.string().allow(null).allow(''),
   publishDate: joi.string().allow(null).allow(''),
   author: joi.object({
     name:joi.string(),
@@ -67,9 +69,10 @@ exports.findFilterKeys = joi.object({
   options: options,
   ...Object.fromEntries(
     keys.map(key => [key, joi.object({
+      name: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
+      image: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
       title: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
       alternativeHeadline: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
-      image: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
       publishDate: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
       author: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
       publisher: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),

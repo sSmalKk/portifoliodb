@@ -1,6 +1,6 @@
 /**
- * User.js
- * @description :: model of a database collection User
+ * user.js
+ * @description :: model of a database collection user
  */
 
 const mongoose = require('mongoose');
@@ -27,13 +27,17 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
+    firstName:{ type:String },
+
+    lastName:{ type:String },
+
+    name:{ type:String },
+
     username:{ type:String },
 
     password:{ type:String },
 
     email:{ type:String },
-
-    name:{ type:String },
 
     isActive:{ type:Boolean },
 
@@ -41,14 +45,14 @@ const schema = new Schema(
 
     updatedAt:{ type:Date },
 
-    addedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'User'
-    },
-
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
+    },
+
+    addedBy:{
+      type:Schema.Types.ObjectId,
+      ref:'user'
     },
 
     userType:{
@@ -57,25 +61,7 @@ const schema = new Schema(
       required:true
     },
 
-    x:{ type:Number },
-
-    y:{ type:Number },
-
-    z:{ type:Number },
-
-    vx:{ type:String },
-
-    vy:{ type:String },
-
-    vz:{ type:String },
-
-    rx:{ type:String },
-
-    ry:{ type:String },
-
-    rz:{ type:String },
-
-    chat:{ type:Array },
+    image:{ type:String },
 
     mobileNo:{ type:String },
 
@@ -135,5 +121,5 @@ schema.method('toJSON', function () {
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const User = mongoose.model('User',schema);
-module.exports = User;
+const user = mongoose.model('user',schema);
+module.exports = user;

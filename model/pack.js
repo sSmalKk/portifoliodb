@@ -22,12 +22,6 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
-    Name:{ type:String },
-
-    Description:{ type:String },
-
-    Imagem:{ type:String },
-
     isDeleted:{ type:Boolean },
 
     isActive:{ type:Boolean },
@@ -38,13 +32,17 @@ const schema = new Schema(
 
     addedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
-    }
+      ref:'user'
+    },
+
+    name:{ type:String },
+
+    image:{ type:String }
   }
   ,{ 
     timestamps: { 

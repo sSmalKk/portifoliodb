@@ -1,6 +1,6 @@
 /**
- * entitybody.js
- * @description :: model of a database collection entitybody
+ * EntityBody.js
+ * @description :: model of a database collection EntityBody
  */
 
 const mongoose = require('mongoose');
@@ -32,13 +32,17 @@ const schema = new Schema(
 
     addedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
-    }
+      ref:'user'
+    },
+
+    name:{ type:String },
+
+    image:{ type:String }
   }
   ,{ 
     timestamps: { 
@@ -74,5 +78,5 @@ schema.method('toJSON', function () {
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const entitybody = mongoose.model('entitybody',schema);
-module.exports = entitybody;
+const EntityBody = mongoose.model('EntityBody',schema);
+module.exports = EntityBody;

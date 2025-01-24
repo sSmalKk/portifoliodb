@@ -4,10 +4,8 @@
  */
 
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-sequence')(mongoose);
 const mongoosePaginate = require('mongoose-paginate-v2');
 let idValidator = require('mongoose-id-validator');
-const uniqueValidator = require('mongoose-unique-validator');
 const myCustomLabels = {
   totalDocs: 'itemCount',
   docs: 'data',
@@ -24,6 +22,10 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
+    name:{ type:String },
+
+    image:{ type:String },
+
     isDeleted:{ type:Boolean },
 
     isActive:{ type:Boolean },
@@ -34,21 +36,13 @@ const schema = new Schema(
 
     addedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
+      ref:'user'
     },
 
     updatedBy:{
       type:Schema.Types.ObjectId,
-      ref:'User'
-    },
-
-    state:{
-      unique:true,
-      type:Number,
-      required:true
-    },
-
-    model:{ type:Schema.Types.Mixed }
+      ref:'user'
+    }
   }
   ,{ 
     timestamps: { 
@@ -84,6 +78,5 @@ schema.method('toJSON', function () {
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-schema.plugin(uniqueValidator,{ message: 'Error, expected {VALUE} to be unique.' });
 const blockstate = mongoose.model('blockstate',schema);
 module.exports = blockstate;

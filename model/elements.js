@@ -47,7 +47,7 @@ const ChemistryElementSchema = new mongoose.Schema({
     required: false,
   },
   oxidationStates: {
-    type: String, // String porque pode conter múltiplos valores separados por vírgulas
+    type: String, 
     required: false,
   },
   standardState: {
@@ -70,7 +70,7 @@ const ChemistryElementSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  yearDiscovered: { type: String }, // Alterado para String
+  yearDiscovered: { type: String },
 
   updatedAt: {
     type: Date,

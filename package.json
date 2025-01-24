@@ -1,5 +1,5 @@
 {
-  "name": "sandboxdb",
+  "name": "todo-mvc-mongodb",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -15,6 +15,7 @@
     "debug": "~2.6.9",
     "dotenv": "~8.2.0",
     "ejs": "~3.1.6",
+    "email-templates": "~8.0.8",
     "express": "~4.16.1",
     "express-list-endpoints": "~5.0.0",
     "express-rate-limit": "~5.2.6",
