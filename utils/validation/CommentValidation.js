@@ -16,9 +16,7 @@ exports.schemaKeys = joi.object({
   commentTime: joi.date().options({ convert: true }).allow(null).allow(''),
   parentItem: joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(null).allow(''),
   isActive: joi.boolean(),
-  isDeleted: joi.boolean(),
-  image: joi.string().allow(null).allow(''),
-  name: joi.string().allow(null).allow('')
+  isDeleted: joi.boolean()
 }).unknown(true);
 
 /** validation keys and properties of Comment for updation */
@@ -30,8 +28,6 @@ exports.updateSchemaKeys = joi.object({
   parentItem: joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(null).allow(''),
   isActive: joi.boolean(),
   isDeleted: joi.boolean(),
-  image: joi.string().allow(null).allow(''),
-  name: joi.string().allow(null).allow(''),
   _id: joi.string().regex(/^[0-9a-fA-F]{24}$/)
 }).unknown(true);
 
@@ -48,8 +44,6 @@ exports.findFilterKeys = joi.object({
       parentItem: joi.alternatives().try(joi.array().items(),joi.string().regex(/^[0-9a-fA-F]{24}$/),joi.object()),
       isActive: joi.alternatives().try(joi.array().items(),joi.boolean(),joi.object()),
       isDeleted: joi.alternatives().try(joi.array().items(),joi.boolean(),joi.object()),
-      image: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
-      name: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
       id: joi.any(),
       _id: joi.alternatives().try(joi.array().items(),joi.string().regex(/^[0-9a-fA-F]{24}$/),joi.object())
     }).unknown(true),])

@@ -53,9 +53,9 @@ const verifyCallback = (req, resolve, reject, platform) => async (error, user, i
  */
 const auth = (platform) => async (req, res, next) => {
 
-  if (platform == PLATFORM.DEVICE){
+  if (platform == PLATFORM.CLIENT){
     return new Promise((resolve, reject) => {
-      passport.authenticate('device-rule', { session: false }, verifyCallback(req, resolve, reject, platform))(
+      passport.authenticate('client-rule', { session: false }, verifyCallback(req, resolve, reject, platform))(
         req,
         res,
         next
@@ -66,9 +66,9 @@ const auth = (platform) => async (req, res, next) => {
         return res.unAuthorized({ message:error.message });
       });
   }
-  else if (platform == PLATFORM.CLIENT){
+  else if (platform == PLATFORM.ADMIN){
     return new Promise((resolve, reject) => {
-      passport.authenticate('client-rule', { session: false }, verifyCallback(req, resolve, reject, platform))(
+      passport.authenticate('admin-rule', { session: false }, verifyCallback(req, resolve, reject, platform))(
         req,
         res,
         next

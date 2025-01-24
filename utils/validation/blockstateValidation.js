@@ -10,18 +10,22 @@ const {
 
 /** validation keys and properties of blockstate */
 exports.schemaKeys = joi.object({
-  name: joi.string().allow(null).allow(''),
-  image: joi.string().allow(null).allow(''),
   isDeleted: joi.boolean(),
-  isActive: joi.boolean()
+  isActive: joi.boolean(),
+  state: joi.number().integer().required(),
+  model: joi.object()
 }).unknown(true);
 
 /** validation keys and properties of blockstate for updation */
 exports.updateSchemaKeys = joi.object({
-  name: joi.string().allow(null).allow(''),
-  image: joi.string().allow(null).allow(''),
   isDeleted: joi.boolean(),
   isActive: joi.boolean(),
+  state: joi.number().integer().when({
+    is:joi.exist(),
+    then:joi.required(),
+    otherwise:joi.optional()
+  }),
+  model: joi.object(),
   _id: joi.string().regex(/^[0-9a-fA-F]{24}$/)
 }).unknown(true);
 
@@ -31,10 +35,10 @@ exports.findFilterKeys = joi.object({
   options: options,
   ...Object.fromEntries(
     keys.map(key => [key, joi.object({
-      name: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
-      image: joi.alternatives().try(joi.array().items(),joi.string(),joi.object()),
       isDeleted: joi.alternatives().try(joi.array().items(),joi.boolean(),joi.object()),
       isActive: joi.alternatives().try(joi.array().items(),joi.boolean(),joi.object()),
+      state: joi.alternatives().try(joi.array().items(),joi.number().integer(),joi.object()),
+      model: joi.alternatives().try(joi.array().items(),joi.object(),joi.object()),
       id: joi.any(),
       _id: joi.alternatives().try(joi.array().items(),joi.string().regex(/^[0-9a-fA-F]{24}$/),joi.object())
     }).unknown(true),])

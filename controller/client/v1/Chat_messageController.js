@@ -239,105 +239,6 @@ const partialUpdateChat_message = async (req,res) => {
     return res.internalServerError({ message:error.message });
   }
 };
-/**
- * @description : deactivate document of Chat_message from table by id;
- * @param {Object} req : request including id in request params.
- * @param {Object} res : response contains updated document of Chat_message.
- * @return {Object} : deactivated Chat_message. {status, message, data}
- */
-const softDeleteChat_message = async (req,res) => {
-  try {
-    if (!req.params.id){
-      return res.badRequest({ message : 'Insufficient request parameters! id is required.' });
-    }
-    let query = { _id:req.params.id };
-    const updateBody = {
-      isDeleted: true,
-      updatedBy: req.user.id,
-    };
-    let updatedChat_message = await dbService.updateOne(Chat_message, query, updateBody);
-    if (!updatedChat_message){
-      return res.recordNotFound();
-    }
-    return res.success({ data:updatedChat_message });
-  } catch (error){
-    return res.internalServerError({ message:error.message }); 
-  }
-};
-
-/**
- * @description : delete document of Chat_message from table.
- * @param {Object} req : request including id as req param.
- * @param {Object} res : response contains deleted document.
- * @return {Object} : deleted Chat_message. {status, message, data}
- */
-const deleteChat_message = async (req,res) => {
-  try { 
-    if (!req.params.id){
-      return res.badRequest({ message : 'Insufficient request parameters! id is required.' });
-    }
-    const query = { _id:req.params.id };
-    const deletedChat_message = await dbService.deleteOne(Chat_message, query);
-    if (!deletedChat_message){
-      return res.recordNotFound();
-    }
-    return res.success({ data :deletedChat_message });
-        
-  }
-  catch (error){
-    return res.internalServerError({ message:error.message });
-  }
-};
-    
-/**
- * @description : delete documents of Chat_message in table by using ids.
- * @param {Object} req : request including array of ids in request body.
- * @param {Object} res : response contains no of documents deleted.
- * @return {Object} : no of documents deleted. {status, message, data}
- */
-const deleteManyChat_message = async (req, res) => {
-  try {
-    let ids = req.body.ids;
-    if (!ids || !Array.isArray(ids) || ids.length < 1) {
-      return res.badRequest();
-    }
-    const query = { _id:{ $in:ids } };
-    const deletedChat_message = await dbService.deleteMany(Chat_message,query);
-    if (!deletedChat_message){
-      return res.recordNotFound();
-    }
-    return res.success({ data :{ count :deletedChat_message } });
-  } catch (error){
-    return res.internalServerError({ message:error.message }); 
-  }
-};
-/**
- * @description : deactivate multiple documents of Chat_message from table by ids;
- * @param {Object} req : request including array of ids in request body.
- * @param {Object} res : response contains updated documents of Chat_message.
- * @return {Object} : number of deactivated documents of Chat_message. {status, message, data}
- */
-const softDeleteManyChat_message = async (req,res) => {
-  try {
-    let ids = req.body.ids;
-    if (!ids || !Array.isArray(ids) || ids.length < 1) {
-      return res.badRequest();
-    }
-    const query = { _id:{ $in:ids } };
-    const updateBody = {
-      isDeleted: true,
-      updatedBy: req.user.id,
-    };
-    let updatedChat_message = await dbService.updateMany(Chat_message,query, updateBody);
-    if (!updatedChat_message) {
-      return res.recordNotFound();
-    }
-    return res.success({ data:{ count :updatedChat_message } });
-        
-  } catch (error){
-    return res.internalServerError({ message:error.message }); 
-  }
-};
 
 module.exports = {
   addChat_message,
@@ -347,9 +248,5 @@ module.exports = {
   getChat_messageCount,
   updateChat_message,
   bulkUpdateChat_message,
-  partialUpdateChat_message,
-  softDeleteChat_message,
-  deleteChat_message,
-  deleteManyChat_message,
-  softDeleteManyChat_message    
+  partialUpdateChat_message    
 };

@@ -3,7 +3,7 @@
  * @description :: functions used in authentication
  */
 
-const User = require('../model/user');
+const User = require('../model/User');
 const dbService = require('../utils/dbService');
 const userTokens = require('../model/userTokens');
 const {
@@ -114,16 +114,7 @@ const loginUser = async (username,password,platform,roleAccess) => {
           data:'You have not been assigned any role'
         };
       }
-      if (platform == PLATFORM.DEVICE){
-        if (!LOGIN_ACCESS[user.userType].includes(PLATFORM.DEVICE)){
-          return {
-            flag:true,
-            data:'you are unable to access this platform'
-          };
-        }
-        token = await generateToken(userData,JWT.DEVICE_SECRET);
-      }
-      else if (platform == PLATFORM.CLIENT){
+      if (platform == PLATFORM.CLIENT){
         if (!LOGIN_ACCESS[user.userType].includes(PLATFORM.CLIENT)){
           return {
             flag:true,
@@ -131,6 +122,15 @@ const loginUser = async (username,password,platform,roleAccess) => {
           };
         }
         token = await generateToken(userData,JWT.CLIENT_SECRET);
+      }
+      else if (platform == PLATFORM.ADMIN){
+        if (!LOGIN_ACCESS[user.userType].includes(PLATFORM.ADMIN)){
+          return {
+            flag:true,
+            data:'you are unable to access this platform'
+          };
+        }
+        token = await generateToken(userData,JWT.ADMIN_SECRET);
       }
       if (user.loginRetryLimit){
         await dbService.updateOne(User,{ _id:user.id },{
