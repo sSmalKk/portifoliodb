@@ -9,6 +9,7 @@
   "dependencies": {
     "aws-sdk": "~2.1008.0",
     "axios": "~0.21.1",
+    "bcryptjs": "^2.4.3",
     "cors": "~2.8.5",
     "dayjs": "~1.10.7",
     "debug": "~2.6.9",
