@@ -19,7 +19,6 @@ const passport = require('passport');
 
 let logger = require('morgan');
 const { clientPassportStrategy } = require('./config/clientPassportStrategy');
-const { adminPassportStrategy } = require('./config/adminPassportStrategy');
 const app = express();
 const httpServer = require('http').createServer(app);
 const corsOptions = { origin: process.env.ALLOW_ORIGIN, };
@@ -33,8 +32,9 @@ app.use(require('./utils/response/responseHandler'));
 //all routes 
 const routes =  require('./routes');
 
+app.use(require('./middleware/activityLog').addActivityLog);
+
 clientPassportStrategy(passport);
-adminPassportStrategy(passport);
 
 app.use(logger('dev'));
 app.use(express.json());
