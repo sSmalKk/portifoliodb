@@ -15,47 +15,6 @@ const validUrl = require('valid-url');
  * @param {Object} res : response of list files API.
  * @return {Object} : response of paginated list of files. {status, message, data}
  */
-const listFiles = async (req, res) => {
-  try {
-    const { page = 1, limit = 10 } = req.query; // Obtém `page` e `limit` da query string, valores padrão: página 1, 10 itens por página
-    const offset = (page - 1) * limit;
-
-    if (!fs.existsSync(defaultDirectory)) {
-      return res.status(404).json({
-        status: false,
-        message: 'Directory not found.',
-      });
-    }
-
-    const files = fs.readdirSync(defaultDirectory); // Lê todos os arquivos do diretório
-    const totalFiles = files.length;
-
-    // Paginação
-    const paginatedFiles = files.slice(offset, offset + parseInt(limit));
-
-    const fileData = paginatedFiles.map((file) => ({
-      name: file,
-      path: path.join(defaultDirectory, file),
-    }));
-
-    return res.status(200).json({
-      status: true,
-      message: 'Files retrieved successfully.',
-      data: {
-        files: fileData,
-        total: totalFiles,
-        page: parseInt(page),
-        pages: Math.ceil(totalFiles / limit),
-      },
-    });
-  } catch (error) {
-    console.error('Erro ao listar arquivos:', error);
-    return res.status(500).json({
-      status: false,
-      message: 'Failed to retrieve files.',
-    });
-  }
-};
 
 let defaultDirectory = 'public/assets';
 let allowedFileTypes = [
@@ -234,6 +193,47 @@ const unlinkFile = async (path) => {
   });
 
   return { status: true };
+};
+const listFiles = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query; // Obtém `page` e `limit` da query string, valores padrão: página 1, 10 itens por página
+    const offset = (page - 1) * limit;
+
+    if (!fs.existsSync(defaultDirectory)) {
+      return res.status(404).json({
+        status: false,
+        message: 'Directory not found.',
+      });
+    }
+
+    const files = fs.readdirSync(defaultDirectory); // Lê todos os arquivos do diretório
+    const totalFiles = files.length;
+
+    // Paginação
+    const paginatedFiles = files.slice(offset, offset + parseInt(limit));
+
+    const fileData = paginatedFiles.map((file) => ({
+      name: file,
+      path: path.join(defaultDirectory, file),
+    }));
+
+    return res.status(200).json({
+      status: true,
+      message: 'Files retrieved successfully.',
+      data: {
+        files: fileData,
+        total: totalFiles,
+        page: parseInt(page),
+        pages: Math.ceil(totalFiles / limit),
+      },
+    });
+  } catch (error) {
+    console.error('Erro ao listar arquivos:', error);
+    return res.status(500).json({
+      status: false,
+      message: 'Failed to retrieve files.',
+    });
+  }
 };
 
 module.exports = { upload, listFiles };
