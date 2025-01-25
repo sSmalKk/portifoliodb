@@ -24,6 +24,11 @@ const schema = new Schema(
 
     name:{ type:String },
 
+    image:{ type:String },
+
+    description:{ type:String },
+
+
     code:{
       type:String,
       required:true
@@ -54,7 +59,6 @@ const schema = new Schema(
 
     isDeleted:{ type:Boolean },
 
-    image:{ type:String }
   }
   ,{ 
     timestamps: { 

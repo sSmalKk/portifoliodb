@@ -48,8 +48,9 @@ const schema = new Schema(
 
     name:{ type:String },
 
-    image:{ type:String }
-  }
+    image:{ type:String },
+
+    description:{ type:String },  }
   ,{ 
     timestamps: { 
       createdAt: 'createdAt', 

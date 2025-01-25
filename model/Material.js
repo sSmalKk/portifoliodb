@@ -22,61 +22,63 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
-    name:{ type:String },
+    name: { type: String },
 
-    symbol:{ type:String },
+    image: { type: String },
 
-    elementId:{ type:String },
+    description: { type: String },
+    symbol: { type: String },
 
-    type:{ type:String },
+    elementId: { type: String },
 
-    baseColors:{ type:String },
+    type: { type: String },
 
-    density:{ type:String },
+    baseColors: { type: String },
 
-    meltingPoint:{ type:String },
+    density: { type: String },
 
-    boilingPoint:{ type:String },
+    meltingPoint: { type: String },
 
-    standardState:{ type:String },
+    boilingPoint: { type: String },
 
-    maxTemperature:{ type:String },
+    standardState: { type: String },
 
-    minTemperature:{ type:String },
+    maxTemperature: { type: String },
 
-    spectrum:{ type:String },
+    minTemperature: { type: String },
 
-    condition:{ type:String },
+    spectrum: { type: String },
 
-    parameters:{ type:String },
+    condition: { type: String },
 
-    description:{ type:String },
+    parameters: { type: String },
 
-    verified:{ type:String },
 
-    isDeleted:{ type:Boolean },
+    verified: { type: String },
 
-    isActive:{ type:Boolean },
+    isDeleted: { type: Boolean },
 
-    createdAt:{ type:Date },
+    isActive: { type: Boolean },
 
-    updatedAt:{ type:Date },
+    createdAt: { type: Date },
 
-    addedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'user'
+    updatedAt: { type: Date },
+
+    addedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'user'
     },
 
-    updatedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'user'
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'user'
     }
   }
-  ,{ 
-    timestamps: { 
-      createdAt: 'createdAt', 
-      updatedAt: 'updatedAt' 
-    } 
+  , {
+    timestamps: {
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt'
+    }
   }
 );
 schema.pre('save', async function (next) {
@@ -86,7 +88,7 @@ schema.pre('save', async function (next) {
 });
 
 schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length){
+  if (docs && docs.length) {
     for (let index = 0; index < docs.length; index++) {
       const element = docs[index];
       element.isDeleted = false;
@@ -98,13 +100,13 @@ schema.pre('insertMany', async function (next, docs) {
 
 schema.method('toJSON', function () {
   const {
-    _id, __v, ...object 
-  } = this.toObject({ virtuals:true });
+    _id, __v, ...object
+  } = this.toObject({ virtuals: true });
   object.id = _id;
-     
+
   return object;
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const Material = mongoose.model('Material',schema);
+const Material = mongoose.model('Material', schema);
 module.exports = Material;

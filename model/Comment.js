@@ -52,10 +52,11 @@ const schema = new Schema(
     },
 
     isDeleted:{ type:Boolean },
+    name:{ type:String },
 
     image:{ type:String },
 
-    name:{ type:String }
+    description:{ type:String },
   }
   ,{ 
     timestamps: { 

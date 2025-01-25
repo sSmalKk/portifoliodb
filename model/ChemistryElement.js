@@ -41,6 +41,9 @@ const schema = new Schema(
 
     name:{ type:String },
 
+    image:{ type:String },
+
+    description:{ type:String },
     atomicMass:{
       type:String,
       required:true,
@@ -94,8 +97,7 @@ const schema = new Schema(
       ref:'user'
     },
 
-    image:{ type:String }
-  }
+   }
   ,{ timestamps: { createdAt: 'createdAt', } }
 );
 schema.pre('save', async function (next) {
