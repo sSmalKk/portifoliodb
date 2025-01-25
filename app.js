@@ -54,6 +54,10 @@ postmanToOpenApi('postman/postman-collection.json', path.join('postman/swagger.y
 app.get('/', (req, res) => {
   res.render('index');
 });
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 
 if (process.env.NODE_ENV !== 'test' ) {
 

@@ -8,6 +8,6 @@ const router = express.Router();
 const fileUploadController = require('../../../controller/client/v1/fileUploadController');
 
 router.post('/client/api/v1/upload', fileUploadController.upload);
-router.get('/client/api/v1/files', fileUploadController.listFiles); // Rota para listar arquivos
+router.post('/list', filesController.listFiles);
 
 module.exports = router;
