@@ -7,8 +7,6 @@ const fs = require('fs');
 const path = require('path');
 const formidable = require('formidable');
 const validUrl = require('valid-url');
-const fs = require('fs');
-const path = require('path');
 
 
 /**
