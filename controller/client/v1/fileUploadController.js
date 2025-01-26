@@ -132,16 +132,15 @@ const upload = async (req, res) => {
  * @return {boolean} : returns true if directory is created or false
  */
 const makeDirectory = async (directoryPath) => {
-
-  if (!fs.existsSync(directoryPath)) {
-    fs.promises.mkdir(directoryPath, { recursive: true }, (error) => {
-      if (error) {
-        return false;
-      };
-      return true;
-    });
+  try {
+    if (!fs.existsSync(directoryPath)) {
+      await fs.promises.mkdir(directoryPath, { recursive: true });
+    }
+    return true;
+  } catch (error) {
+    console.error(`Erro ao criar diretório ${directoryPath}:`, error);
+    return false;
   }
-  return true;
 };
 
 /**
@@ -179,7 +178,7 @@ const uploadFiles = async  (file, fields, fileCount) => {
   }
 
   //Create New path
-  let newPath = defaultDirectory + '/' + new Date().getTime() + path.extname(file.originalFilename);
+  let newPath = path.join(defaultDirectory, `${Date.now()}${path.extname(file.originalFilename)}`);
 
   //Create Requested Directory,if given in request parameter.
   if (fields && fields.folderName) {
@@ -197,26 +196,34 @@ const uploadFiles = async  (file, fields, fileCount) => {
     fileName = fields.fileName;
   }
   
-  const response = await new Promise(async (resolve, reject) => {
-    fs.readFile(tempPath, function (error, data) {
-      fs.writeFile(newPath, data, async function (error) {
+  const response = await new Promise((resolve, reject) => {
+    fs.readFile(tempPath, (readErr, data) => {
+      if (readErr) {
+        console.error(`Erro ao ler o arquivo temporário: ${readErr.message}`);
+        return reject({ status: false, message: 'Erro ao ler o arquivo temporário.' });
+      }
   
-        //Remove file from temp
-        unlink = await unlinkFile(tempPath);
-  
-        if (unlink.status == false) {
-          reject(unlink);
-        } else {
-          resolve({
-            status: true,
-            message: 'File upload successfully.',
-            data: '/' + newPath
-          });
+      fs.writeFile(newPath, data, async (writeErr) => {
+        if (writeErr) {
+          console.error(`Erro ao salvar o arquivo: ${writeErr.message}`);
+          return reject({ status: false, message: 'Erro ao salvar o arquivo.' });
         }
+  
+        // Remove o arquivo temporário
+        const unlinkResult = await unlinkFile(tempPath);
+        if (!unlinkResult.status) {
+          return reject(unlinkResult);
+        }
+  
+        resolve({
+          status: true,
+          message: 'File upload successfully.',
+          data: '/' + newPath.replace(/\\/g, '/'), // Compatível com Windows e Linux
+        });
       });
     });
   });
-
+  
   return response;
 };
 

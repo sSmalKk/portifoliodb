@@ -24,6 +24,7 @@ const httpServer = require('http').createServer(app);
 const corsOptions = { origin: process.env.ALLOW_ORIGIN, };
 app.use(cors(corsOptions));
 
+
 //template engine
 app.set('view engine', 'ejs'); 
 app.set('views', path.join(__dirname, 'views'));
@@ -53,10 +54,6 @@ postmanToOpenApi('postman/postman-collection.json', path.join('postman/swagger.y
 
 app.get('/', (req, res) => {
   res.render('index');
-});
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
 });
 
 if (process.env.NODE_ENV !== 'test' ) {
