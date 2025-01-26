@@ -38,41 +38,93 @@ let maxFileSize = 5; //In Megabyte
  */
 const upload = async (req, res) => {
   try {
-    // Configuração do Formidable
-    const form = new formidable.IncomingForm({
-      multiples: true,
-      maxFileSize: 5 * 1024 * 1024, // 5 MB
-    });
+    // Create Directory if not exist.
+    await makeDirectory(defaultDirectory);
 
-    form.parse(req, async (error, fields, files) => {
-      if (error) {
-        console.error("Erro ao processar o formulário:", error);
-        return res.status(422).json({ error: "Erro ao processar o upload." });
-      }
+    // Setting up formidable options.
+    const options = {
+      multiples : true,
+      maxFileSize : 300 * 1024 * 1024, //300 MB
+      maxFieldsSize : 100 * 1024 * 1024 //50 MB
+    };
+    const form = new formidable.IncomingForm(options);
 
-      if (!files.files) {
-        return res.status(400).json({ error: "Nenhum arquivo enviado." });
-      }
+    //Upload File one by one
+    const uploadFileRes = await new Promise(async (resolve, reject) => {
 
-      const fileArray = Array.isArray(files.files) ? files.files : [files.files];
-      const uploadResults = [];
+      form.parse(req, async function (error, fields, files) {
 
-      for (const file of fileArray) {
-        const uploadResult = await uploadFiles(file, fields);
-        uploadResults.push(uploadResult);
-      }
+        if (error) {
+          reject(error);
+        }
 
-      return res.status(200).json({
-        message: "Upload concluído com sucesso.",
-        data: uploadResults,
+        let uploadSuccess = [];
+        let uploadFailed = [];
+        let fileCount = 1;
+
+        let fileArr = [];
+        if (!files['files']) {
+          reject({
+            'message': 'Select at least one file to upload.',
+            'name': 'validationError'
+          });
+        }
+        if (!Array.isArray(files['files'])) {
+          fileArr.push(files['files']);
+          files['files'] = fileArr;
+        }
+
+        for (let file of files['files']) {
+
+          let response = await uploadFiles(file, fields, fileCount++);
+
+          if (response.status == false) {
+            uploadFailed.push({
+              'name': file.originalFilename,
+              'error': response.message,
+              'status': false
+            });
+          } else {
+            let url = response.data;
+            if (!validUrl.isUri(response.data)) {
+              response.data = response.data.replace('/public', '');
+              url = `${response.data}`;
+            }
+            uploadSuccess.push({
+              'name': file.originalFilename,
+              'path': url,
+              'status': true
+            });
+          }
+        }
+        resolve({
+          uploadSuccess,
+          uploadFailed
+        });
       });
     });
+    
+    if (uploadFileRes.uploadSuccess.length > 0) {
+      let message = `${uploadFileRes.uploadSuccess.length} File uploaded successfully out of ${uploadFileRes.uploadSuccess.length + uploadFileRes.uploadFailed.length}`;
+      return res.success({
+        message: message,
+        data: uploadFileRes
+      });
+    } else {
+      let message = 'Failed to upload files.';
+      return res.failure({
+        message: message,
+        data: uploadFileRes
+      });
+    }
   } catch (error) {
-    console.error("Erro ao realizar upload:", error);
-    res.status(500).json({ error: "Erro interno no servidor." });
+    if (error.name && error.name == 'validationError') {
+      return res.validationError({ message: error.message });
+    } else {
+      return res.internalServerError({ message:error.message }); 
+    }
   }
 };
-
 
 /**
  * @description : create directory to specified path
