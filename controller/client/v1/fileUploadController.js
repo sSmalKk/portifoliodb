@@ -8,14 +8,6 @@ const path = require('path');
 const formidable = require('formidable');
 const validUrl = require('valid-url');
 
-
-/**
- * @description : lists files with pagination
- * @param {Object} req : request of list files API
- * @param {Object} res : response of list files API.
- * @return {Object} : response of paginated list of files. {status, message, data}
- */
-
 let defaultDirectory = 'public/assets';
 let allowedFileTypes = [
   'png',
@@ -194,45 +186,5 @@ const unlinkFile = async (path) => {
 
   return { status: true };
 };
-const listFiles = async (req, res) => {
-  try {
-      const { page = 1, limit = 10 } = req.query; // Parse dos parâmetros
-      const offset = (page - 1) * limit;
 
-      if (!fs.existsSync(defaultDirectory)) {
-          return res.status(404).json({
-              status: false,
-              message: 'Directory not found.',
-          });
-      }
-
-      const files = fs.readdirSync(defaultDirectory); // Lê todos os arquivos
-      const totalFiles = files.length;
-
-      // Paginação
-      const paginatedFiles = files.slice(offset, offset + parseInt(limit, 10));
-
-      const fileData = paginatedFiles.map((file) => ({
-          name: file,
-          path: path.join(defaultDirectory, file),
-      }));
-
-      return res.status(200).json({
-          status: true,
-          message: 'Files retrieved successfully.',
-          data: {
-              files: fileData,
-              total: totalFiles,
-              page: parseInt(page, 10),
-              pages: Math.ceil(totalFiles / limit),
-          },
-      });
-  } catch (error) {
-      console.error('Error listing files:', error);
-      return res.status(500).json({
-          status: false,
-          message: `Failed to retrieve files: ${error.message}`,
-      });
-  }
-};
-module.exports = { upload, listFiles };
+module.exports = { upload };
