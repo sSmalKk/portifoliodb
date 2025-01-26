@@ -27,7 +27,10 @@ const schema = new Schema(
     image: { type: String },
 
     description: { type: String },
-
+    pack: {
+      ref: 'pack',
+      type: Schema.Types.ObjectId
+    },
     title: { type: String },
 
     alternativeHeadline: { type: String },

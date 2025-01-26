@@ -22,39 +22,42 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
-    name:{ type:String },
+    name: { type: String },
 
-    image:{ type:String },
+    image: { type: String },
 
-    description:{ type:String },
+    description: { type: String },
+    pack: {
+      ref: 'pack',
+      type: Schema.Types.ObjectId
+    },
+    tags: { type: Array },
 
-    tags:{ type:Array },
+    priority: { type: Number },
 
-    priority:{ type:Number },
-
-    parentId:{
-      type:Schema.Types.ObjectId,
-      ref:'item'
+    parentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'item'
     },
 
-    isActive:{ type:Boolean },
+    isActive: { type: Boolean },
 
-    createdAt:{ type:Date },
+    createdAt: { type: Date },
 
-    updatedAt:{ type:Date },
+    updatedAt: { type: Date },
 
-    categoryId:{
-      type:Schema.Types.ObjectId,
-      ref:'category'
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: 'category'
     },
 
-    isDeleted:{ type:Boolean }
+    isDeleted: { type: Boolean }
   }
-  ,{ 
-    timestamps: { 
-      createdAt: 'createdAt', 
-      updatedAt: 'updatedAt' 
-    } 
+  , {
+    timestamps: {
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt'
+    }
   }
 );
 schema.pre('save', async function (next) {
@@ -64,7 +67,7 @@ schema.pre('save', async function (next) {
 });
 
 schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length){
+  if (docs && docs.length) {
     for (let index = 0; index < docs.length; index++) {
       const element = docs[index];
       element.isDeleted = false;
@@ -76,13 +79,13 @@ schema.pre('insertMany', async function (next, docs) {
 
 schema.method('toJSON', function () {
   const {
-    _id, __v, ...object 
-  } = this.toObject({ virtuals:true });
+    _id, __v, ...object
+  } = this.toObject({ virtuals: true });
   object.id = _id;
-     
+
   return object;
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const item = mongoose.model('item',schema);
+const item = mongoose.model('item', schema);
 module.exports = item;

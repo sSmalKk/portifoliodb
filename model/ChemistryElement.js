@@ -24,81 +24,85 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
 
-    atomicNumber:{
-      type:Number,
-      unique:true,
-      required:true
+    atomicNumber: {
+      type: Number,
+      unique: true,
+      required: true
     },
 
-    symbol:{
-      type:String,
-      required:true,
-      unique:false,
-      lowercase:false,
-      trim:false,
-      uniqueCaseInsensitive:true
+    symbol: {
+      type: String,
+      required: true,
+      unique: false,
+      lowercase: false,
+      trim: false,
+      uniqueCaseInsensitive: true
     },
 
-    name:{ type:String },
+    name: { type: String },
 
-    image:{ type:String },
+    image: { type: String },
 
-    description:{ type:String },
-    atomicMass:{
-      type:String,
-      required:true,
-      unique:true,
-      lowercase:false,
-      trim:false,
-      uniqueCaseInsensitive:true
+    description: { type: String },
+    pack: {
+      ref: 'pack',
+      type: Schema.Types.ObjectId
+    },
+    atomicMass: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: false,
+      trim: false,
+      uniqueCaseInsensitive: true
     },
 
-    cpkHexColor:{ type:String },
+    cpkHexColor: { type: String },
 
-    electronConfiguration:{ type:String },
+    electronConfiguration: { type: String },
 
-    electronegativity:{ type:String },
+    electronegativity: { type: String },
 
-    atomicRadius:{ type:String },
+    atomicRadius: { type: String },
 
-    ionizationEnergy:{ type:String },
+    ionizationEnergy: { type: String },
 
-    electronAffinity:{ type:String },
+    electronAffinity: { type: String },
 
-    oxidationStates:{ type:String },
+    oxidationStates: { type: String },
 
-    standardState:{ type:String },
+    standardState: { type: String },
 
-    meltingPoint:{ type:String },
+    meltingPoint: { type: String },
 
-    boilingPoint:{ type:String },
+    boilingPoint: { type: String },
 
-    density:{ type:String },
+    density: { type: String },
 
-    groupBlock:{ type:String },
+    groupBlock: { type: String },
 
-    yearDiscovered:{ type:String },
+    yearDiscovered: { type: String },
 
-    updatedAt:{ type:String },
+    updatedAt: { type: String },
 
-    isDeleted:{ type:Boolean },
+    isDeleted: { type: Boolean },
 
-    isActive:{ type:Boolean },
+    isActive: { type: Boolean },
 
-    createdAt:{ type:Date },
+    createdAt: { type: Date },
 
-    addedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'user'
+    addedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'user'
     },
 
-    updatedBy:{
-      type:Schema.Types.ObjectId,
-      ref:'user'
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'user'
     },
 
-   }
-  ,{ timestamps: { createdAt: 'createdAt', } }
+  }
+  , { timestamps: { createdAt: 'createdAt', } }
 );
 schema.pre('save', async function (next) {
   this.isDeleted = false;
@@ -107,7 +111,7 @@ schema.pre('save', async function (next) {
 });
 
 schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length){
+  if (docs && docs.length) {
     for (let index = 0; index < docs.length; index++) {
       const element = docs[index];
       element.isDeleted = false;
@@ -119,14 +123,14 @@ schema.pre('insertMany', async function (next, docs) {
 
 schema.method('toJSON', function () {
   const {
-    _id, __v, ...object 
-  } = this.toObject({ virtuals:true });
+    _id, __v, ...object
+  } = this.toObject({ virtuals: true });
   object.id = _id;
-     
+
   return object;
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-schema.plugin(uniqueValidator,{ message: 'Error, expected {VALUE} to be unique.' });
-const ChemistryElement = mongoose.model('ChemistryElement',schema);
+schema.plugin(uniqueValidator, { message: 'Error, expected {VALUE} to be unique.' });
+const ChemistryElement = mongoose.model('ChemistryElement', schema);
 module.exports = ChemistryElement;

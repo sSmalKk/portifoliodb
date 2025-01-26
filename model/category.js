@@ -27,7 +27,10 @@ const schema = new Schema(
 
     description: { type: String },
 
-
+    pack: {
+      ref: 'pack',
+      type: Schema.Types.ObjectId
+    },
     parentId: {
       type: Schema.Types.ObjectId,
       ref: 'category'
