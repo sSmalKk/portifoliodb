@@ -38,93 +38,41 @@ let maxFileSize = 5; //In Megabyte
  */
 const upload = async (req, res) => {
   try {
-    // Create Directory if not exist.
-    await makeDirectory(defaultDirectory);
+    // Configuração do Formidable
+    const form = new formidable.IncomingForm({
+      multiples: true,
+      maxFileSize: 5 * 1024 * 1024, // 5 MB
+    });
 
-    // Setting up formidable options.
-    const options = {
-      multiples : true,
-      maxFileSize : 300 * 1024 * 1024, //300 MB
-      maxFieldsSize : 100 * 1024 * 1024 //50 MB
-    };
-    const form = new formidable.IncomingForm(options);
+    form.parse(req, async (error, fields, files) => {
+      if (error) {
+        console.error("Erro ao processar o formulário:", error);
+        return res.status(422).json({ error: "Erro ao processar o upload." });
+      }
 
-    //Upload File one by one
-    const uploadFileRes = await new Promise(async (resolve, reject) => {
+      if (!files.files) {
+        return res.status(400).json({ error: "Nenhum arquivo enviado." });
+      }
 
-      form.parse(req, async function (error, fields, files) {
+      const fileArray = Array.isArray(files.files) ? files.files : [files.files];
+      const uploadResults = [];
 
-        if (error) {
-          reject(error);
-        }
+      for (const file of fileArray) {
+        const uploadResult = await uploadFiles(file, fields);
+        uploadResults.push(uploadResult);
+      }
 
-        let uploadSuccess = [];
-        let uploadFailed = [];
-        let fileCount = 1;
-
-        let fileArr = [];
-        if (!files['files']) {
-          reject({
-            'message': 'Select at least one file to upload.',
-            'name': 'validationError'
-          });
-        }
-        if (!Array.isArray(files['files'])) {
-          fileArr.push(files['files']);
-          files['files'] = fileArr;
-        }
-
-        for (let file of files['files']) {
-
-          let response = await uploadFiles(file, fields, fileCount++);
-
-          if (response.status == false) {
-            uploadFailed.push({
-              'name': file.originalFilename,
-              'error': response.message,
-              'status': false
-            });
-          } else {
-            let url = response.data;
-            if (!validUrl.isUri(response.data)) {
-              response.data = response.data.replace('/public', '');
-              url = `${response.data}`;
-            }
-            uploadSuccess.push({
-              'name': file.originalFilename,
-              'path': url,
-              'status': true
-            });
-          }
-        }
-        resolve({
-          uploadSuccess,
-          uploadFailed
-        });
+      return res.status(200).json({
+        message: "Upload concluído com sucesso.",
+        data: uploadResults,
       });
     });
-    
-    if (uploadFileRes.uploadSuccess.length > 0) {
-      let message = `${uploadFileRes.uploadSuccess.length} File uploaded successfully out of ${uploadFileRes.uploadSuccess.length + uploadFileRes.uploadFailed.length}`;
-      return res.success({
-        message: message,
-        data: uploadFileRes
-      });
-    } else {
-      let message = 'Failed to upload files.';
-      return res.failure({
-        message: message,
-        data: uploadFileRes
-      });
-    }
   } catch (error) {
-    if (error.name && error.name == 'validationError') {
-      return res.validationError({ message: error.message });
-    } else {
-      return res.internalServerError({ message:error.message }); 
-    }
+    console.error("Erro ao realizar upload:", error);
+    res.status(500).json({ error: "Erro interno no servidor." });
   }
 };
+
 
 /**
  * @description : create directory to specified path
@@ -132,15 +80,16 @@ const upload = async (req, res) => {
  * @return {boolean} : returns true if directory is created or false
  */
 const makeDirectory = async (directoryPath) => {
-  try {
-    if (!fs.existsSync(directoryPath)) {
-      await fs.promises.mkdir(directoryPath, { recursive: true });
-    }
-    return true;
-  } catch (error) {
-    console.error(`Erro ao criar diretório ${directoryPath}:`, error);
-    return false;
+
+  if (!fs.existsSync(directoryPath)) {
+    fs.promises.mkdir(directoryPath, { recursive: true }, (error) => {
+      if (error) {
+        return false;
+      };
+      return true;
+    });
   }
+  return true;
 };
 
 /**
@@ -178,7 +127,7 @@ const uploadFiles = async  (file, fields, fileCount) => {
   }
 
   //Create New path
-  let newPath = path.join(defaultDirectory, `${Date.now()}${path.extname(file.originalFilename)}`);
+  let newPath = defaultDirectory + '/' + new Date().getTime() + path.extname(file.originalFilename);
 
   //Create Requested Directory,if given in request parameter.
   if (fields && fields.folderName) {
@@ -196,34 +145,26 @@ const uploadFiles = async  (file, fields, fileCount) => {
     fileName = fields.fileName;
   }
   
-  const response = await new Promise((resolve, reject) => {
-    fs.readFile(tempPath, (readErr, data) => {
-      if (readErr) {
-        console.error(`Erro ao ler o arquivo temporário: ${readErr.message}`);
-        return reject({ status: false, message: 'Erro ao ler o arquivo temporário.' });
-      }
+  const response = await new Promise(async (resolve, reject) => {
+    fs.readFile(tempPath, function (error, data) {
+      fs.writeFile(newPath, data, async function (error) {
   
-      fs.writeFile(newPath, data, async (writeErr) => {
-        if (writeErr) {
-          console.error(`Erro ao salvar o arquivo: ${writeErr.message}`);
-          return reject({ status: false, message: 'Erro ao salvar o arquivo.' });
+        //Remove file from temp
+        unlink = await unlinkFile(tempPath);
+  
+        if (unlink.status == false) {
+          reject(unlink);
+        } else {
+          resolve({
+            status: true,
+            message: 'File upload successfully.',
+            data: '/' + newPath
+          });
         }
-  
-        // Remove o arquivo temporário
-        const unlinkResult = await unlinkFile(tempPath);
-        if (!unlinkResult.status) {
-          return reject(unlinkResult);
-        }
-  
-        resolve({
-          status: true,
-          message: 'File upload successfully.',
-          data: '/' + newPath.replace(/\\/g, '/'), // Compatível com Windows e Linux
-        });
       });
     });
   });
-  
+
   return response;
 };
 
