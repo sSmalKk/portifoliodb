@@ -8,6 +8,7 @@ const router =  express.Router();
 router.use('/client/auth',require('./auth'));
 router.use(require('./TickupdateRoutes'));
 router.use(require('./SizeRoutes'));
+router.use(require('./ServerRoutes'));
 router.use(require('./packRoutes'));
 router.use(require('./MaterialRoutes'));
 router.use(require('./ChemistryElementRoutes'));

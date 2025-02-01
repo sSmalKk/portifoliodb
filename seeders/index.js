@@ -781,6 +781,131 @@ async function seedRouteRole () {
         route: '/client/api/v1/size/deletemany',
         role: 'System_User',
         method: 'POST'
+      },,
+      {
+        route: '/client/api/v1/server/count',
+        role: 'User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/create',
+        role: 'User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/addbulk',
+        role: 'User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/update/:id',
+        role: 'User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/partial-update/:id',
+        role: 'User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/updatebulk',
+        role: 'User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/softdelete/:id',
+        role: 'User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/softdeletemany',
+        role: 'User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/delete/:id',
+        role: 'User',
+        method: 'DELETE'
+      },
+      {
+        route: '/client/api/v1/server/deletemany',
+        role: 'User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/list',
+        role: 'User',
+        method: 'POST' 
+      },
+      {
+        route: '/client/api/v1/server/list',
+        role: 'System_User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/:id',
+        role: 'User',
+        method: 'GET' 
+      },
+      {
+        route: '/client/api/v1/server/:id',
+        role: 'System_User',
+        method: 'GET'
+      },
+      {
+        route: '/client/api/v1/server/count',
+        role: 'User',
+        method: 'POST' 
+      },
+      {
+        route: '/client/api/v1/server/count',
+        role: 'System_User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/create',
+        role: 'System_User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/addbulk',
+        role: 'System_User',
+        method: 'POST'
+      },
+      {
+        route: '/client/api/v1/server/update/:id',
+        role: 'System_User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/partial-update/:id',
+        role: 'System_User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/updatebulk',
+        role: 'System_User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/softdelete/:id',
+        role: 'System_User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/softdeletemany',
+        role: 'System_User',
+        method: 'PUT'
+      },
+      {
+        route: '/client/api/v1/server/delete/:id',
+        role: 'System_User',
+        method: 'DELETE'
+      },
+      {
+        route: '/client/api/v1/server/deletemany',
+        role: 'System_User',
+        method: 'POST'
       },
       {
         route: '/client/api/v1/tickupdate/list',

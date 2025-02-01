@@ -5,6 +5,7 @@
 
 let Tickupdate = require('../model/Tickupdate');
 let Size = require('../model/Size');
+let Server = require('../model/Server');
 let Pack = require('../model/pack');
 let Material = require('../model/Material');
 let ChemistryElement = require('../model/ChemistryElement');
@@ -40,6 +41,14 @@ const deleteTickupdate = async (filter) =>{
 const deleteSize = async (filter) =>{
   try {
     let response  = await dbService.deleteMany(Size,filter);
+    return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+const deleteServer = async (filter) =>{
+  try {
+    let response  = await dbService.deleteMany(Server,filter);
     return response;
   } catch (error){
     throw new Error(error.message);
@@ -210,6 +219,8 @@ const deleteUser = async (filter) =>{
 
       const SizeFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const SizeCnt = await dbService.deleteMany(Size,SizeFilter);
+      const ServerFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const ServerCnt = await dbService.deleteMany(Server,ServerFilter);
 
       const packFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const packCnt = await dbService.deleteMany(Pack,packFilter);
@@ -269,6 +280,7 @@ const deleteUser = async (filter) =>{
       let response = {
         Tickupdate :TickupdateCnt,
         Size :SizeCnt,
+        Server :ServerCnt,
         pack :packCnt,
         Material :MaterialCnt,
         ChemistryElement :ChemistryElementCnt,
@@ -422,6 +434,14 @@ const countSize = async (filter) =>{
   try {
     const SizeCnt =  await dbService.count(Size,filter);
     return { Size : SizeCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+const countServer = async (filter) =>{
+  try {
+    const ServerCnt =  await dbService.count(Server,filter);
+    return { Server : ServerCnt };
   } catch (error){
     throw new Error(error.message);
   }
@@ -586,6 +606,9 @@ const countUser = async (filter) =>{
       const SizeFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const SizeCnt =  await dbService.count(Size,SizeFilter);
 
+      const ServerFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const ServerCnt =  await dbService.count(Server,ServerFilter);
+
       const packFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const packCnt =  await dbService.count(Pack,packFilter);
 
@@ -643,6 +666,7 @@ const countUser = async (filter) =>{
       let response = {
         Tickupdate : TickupdateCnt,
         Size : SizeCnt,
+        Server : ServerCnt,
         pack : packCnt,
         Material : MaterialCnt,
         ChemistryElement : ChemistryElementCnt,
@@ -793,7 +817,14 @@ const softDeleteSize = async (filter,updateBody) =>{
     throw new Error(error.message);
   }
 };
-
+const softDeleteServer = async (filter,updateBody) =>{  
+  try {
+    const ServerCnt =  await dbService.updateMany(Server,filter);
+    return { Server : ServerCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
 const softDeletePack = async (filter,updateBody) =>{  
   try {
     const packCnt =  await dbService.updateMany(Pack,filter);
@@ -955,6 +986,8 @@ const softDeleteUser = async (filter,updateBody) =>{
 
       const SizeFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
       const SizeCnt = await dbService.updateMany(Size,SizeFilter,updateBody);
+      const ServerFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
+      const ServerCnt = await dbService.updateMany(Server,ServerFilter,updateBody);
 
       const packFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
       const packCnt = await dbService.updateMany(Pack,packFilter,updateBody);
@@ -1014,6 +1047,7 @@ const softDeleteUser = async (filter,updateBody) =>{
       let response = {
         Tickupdate :TickupdateCnt,
         Size :SizeCnt,
+        Server :ServerCnt,
         pack :packCnt,
         Material :MaterialCnt,
         ChemistryElement :ChemistryElementCnt,
@@ -1153,6 +1187,7 @@ const softDeleteUserRole = async (filter,updateBody) =>{
 module.exports = {
   deleteTickupdate,
   deleteSize,
+  deleteServer,
   deletePack,
   deleteMaterial,
   deleteChemistryElement,
@@ -1176,6 +1211,7 @@ module.exports = {
   deleteUserRole,
   countTickupdate,
   countSize,
+  countServer,
   countPack,
   countMaterial,
   countChemistryElement,
@@ -1199,6 +1235,7 @@ module.exports = {
   countUserRole,
   softDeleteTickupdate,
   softDeleteSize,
+  softDeleteServer,
   softDeletePack,
   softDeleteMaterial,
   softDeleteChemistryElement,
