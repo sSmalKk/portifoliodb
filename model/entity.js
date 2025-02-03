@@ -1,86 +1,28 @@
-/**
- * entity.js
- * @description :: model of a database collection entity
- */
-
-const mongoose = require('mongoose');
-const mongoosePaginate = require('mongoose-paginate-v2');
-let idValidator = require('mongoose-id-validator');
-const myCustomLabels = {
-  totalDocs: 'itemCount',
-  docs: 'data',
-  limit: 'perPage',
-  page: 'currentPage',
-  nextPage: 'next',
-  prevPage: 'prev',
-  totalPages: 'pageCount',
-  pagingCounter: 'slNo',
-  meta: 'paginator',
-};
-mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const schema = new Schema(
+
+const entitySchema = new Schema(
   {
-
-    isDeleted: { type: Boolean },
-
-    isActive: { type: Boolean },
-
-    createdAt: { type: Date },
-
-    updatedAt: { type: Date },
-
-    addedBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'user'
-    },
-
-    updatedBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'user'
-    },
-    name: { type: String },
-
-    image: { type: String },
-
-    description: { type: String }, pack: {
-      ref: 'pack',
-      type: Schema.Types.ObjectId
-    },
-  }
-  , {
-    timestamps: {
-      createdAt: 'createdAt',
-      updatedAt: 'updatedAt'
-    }
-  }
+    ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true }, // Dono da entidade
+    name: { type: String, required: true }, // Nome da entidade
+    description: { type: String, default: "" }, // Descrição
+    position: { 
+      x: { type: Number, required: true, default: 0 },
+      y: { type: Number, required: true, default: 0 },
+      z: { type: Number, required: true, default: 0 }
+    }, // Posição da entidade no mundo
+    rotation: { 
+      x: { type: Number, required: true, default: 0 },
+      y: { type: Number, required: true, default: 0 },
+      z: { type: Number, required: true, default: 0 },
+      w: { type: Number, required: true, default: 1 }
+    }, // Rotação da entidade
+    slots: { type: Number, required: true, default: 5 }, // Número máximo de entidades que um player pode ter
+    tickLastUpdate: { type: Number, required: true }, // Último tick em que foi atualizada
+    isDeleted: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
 );
-schema.pre('save', async function (next) {
-  this.isDeleted = false;
-  this.isActive = true;
-  next();
-});
 
-schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length) {
-    for (let index = 0; index < docs.length; index++) {
-      const element = docs[index];
-      element.isDeleted = false;
-      element.isActive = true;
-    }
-  }
-  next();
-});
-
-schema.method('toJSON', function () {
-  const {
-    _id, __v, ...object
-  } = this.toObject({ virtuals: true });
-  object.id = _id;
-
-  return object;
-});
-schema.plugin(mongoosePaginate);
-schema.plugin(idValidator);
-const entity = mongoose.model('entity', schema);
-module.exports = entity;
+module.exports = mongoose.model("Entity", entitySchema);

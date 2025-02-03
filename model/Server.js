@@ -25,10 +25,10 @@ const schema = new Schema(
 
     image: { type: String },
     description: { type: String },
-    pack: {
+    packs: [{
       ref: 'pack',
       type: Schema.Types.ObjectId
-    },
+    }],
     isDeleted: { type: Boolean },
 
     isActive: { type: Boolean },
@@ -45,7 +45,21 @@ const schema = new Schema(
     updatedBy: {
       type: Schema.Types.ObjectId,
       ref: 'user'
-    }
+    },
+    // **Configuração do Tick**
+    tickEnabled: { type: Boolean, default: true }, // Permite congelar os ticks
+    tickRate: { type: Number, default: 20 }, // Valor padrão de ticks por segundo
+    lastTickTimestamp: { type: Number, default: Date.now }, // Marca o último tick
+    globalTick: { type: Number, default: 0 }, // Tick global baseado no tempo real
+
+    gameStartDate: { type: Date, default: Date.now }, // Data de início do jogo
+
+    // Parâmetros do servidor
+    parametros: [{
+      nome: { type: String, required: true },
+      valor: { type: mongoose.Schema.Types.Mixed, required: true }
+    }],
+
   }
   , {
     timestamps: {

@@ -34,12 +34,9 @@ const schema = new Schema(
     image: { type: String },
     description: { type: String },
 
-    // Packs necessários
     requiredPacks: [{ type: Schema.Types.ObjectId, ref: 'pack' }],
-
-    // Packs incompatíveis
     packsIncompatible: [{ type: Schema.Types.ObjectId, ref: 'pack' }]
-  },
+    },
   {
     timestamps: {
       createdAt: 'createdAt',

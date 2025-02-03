@@ -1,101 +1,31 @@
-/**
- * Chat_group.js
- * @description :: model of a database collection Chat_group
- */
-
-const mongoose = require('mongoose');
-const mongoosePaginate = require('mongoose-paginate-v2');
-let idValidator = require('mongoose-id-validator');
-const myCustomLabels = {
-  totalDocs: 'itemCount',
-  docs: 'data',
-  limit: 'perPage',
-  page: 'currentPage',
-  nextPage: 'next',
-  prevPage: 'prev',
-  totalPages: 'pageCount',
-  pagingCounter: 'slNo',
-  meta: 'paginator',
-};
-mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const schema = new Schema(
+
+const chatGroupSchema = new Schema(
   {
-
-    name: { type: String },
-
-    image: { type: String },
-
-    description: { type: String },
-    pack: {
-      ref: 'pack',
-      type: Schema.Types.ObjectId
-    },
-
-    code: {
-      type: String,
-      required: true
-    },
-
-    admin: {
-      type: String,
-      required: true
-    },
-
-    member: { type: Array },
-
-    isActive: { type: Boolean },
-
-    createdAt: { type: Date },
-
-    updatedAt: { type: Date },
-
-    updatedBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'user'
-    },
-
-    addedBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'user'
-    },
-
-    isDeleted: { type: Boolean },
-
-  }
-  , {
-    timestamps: {
-      createdAt: 'createdAt',
-      updatedAt: 'updatedAt'
-    }
-  }
+    type: { 
+      type: String, 
+      enum: ["global", "local", "clan", "private"], 
+      required: true 
+    }, // Tipo do grupo
+    
+    name: { type: String, required: true }, // Nome do grupo (apenas para Clã)
+    
+    code: { type: String, unique: true, sparse: true }, // Código de convite (apenas para Clã)
+    
+    adminId: { type: Schema.Types.ObjectId, ref: "User", required: false }, // Admin do grupo (somente Clã)
+    
+    memberIds: [{ type: Schema.Types.ObjectId, ref: "User" }], // Lista de membros (exceto Global)
+    
+    maxSlots: { type: Number, default: 10 }, // Máximo de membros (apenas Clã)
+    
+    tickCreated: { type: Number, required: true }, // Tick em que o grupo foi criado
+    
+    isDeleted: { type: Boolean, default: false },
+    
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
 );
-schema.pre('save', async function (next) {
-  this.isDeleted = false;
-  this.isActive = true;
-  next();
-});
 
-schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length) {
-    for (let index = 0; index < docs.length; index++) {
-      const element = docs[index];
-      element.isDeleted = false;
-      element.isActive = true;
-    }
-  }
-  next();
-});
-
-schema.method('toJSON', function () {
-  const {
-    _id, __v, ...object
-  } = this.toObject({ virtuals: true });
-  object.id = _id;
-
-  return object;
-});
-schema.plugin(mongoosePaginate);
-schema.plugin(idValidator);
-const Chat_group = mongoose.model('Chat_group', schema);
-module.exports = Chat_group;
+module.exports = mongoose.models.ChatGroup || mongoose.model("ChatGroup", chatGroupSchema);

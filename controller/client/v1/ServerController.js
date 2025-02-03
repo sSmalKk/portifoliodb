@@ -9,85 +9,212 @@ const validation = require('../../../utils/validateRequest');
 const dbService = require('../../../utils/dbService');
 const ObjectId = require('mongodb').ObjectId;
 const utils = require('../../../utils/common');
-   
+const pack = require('../../../model/pack');
+const processPacks = async (packs) => {
+  let validPacks = new Set(packs);
+  let checkedPacks = new Set();
+  let incompatiblePacks = new Set();
+
+  const processPack = async (packId) => {
+    if (checkedPacks.has(packId)) return;
+    const packData = await dbService.findOne(pack, { _id: packId });
+    if (!packData) return;
+
+    checkedPacks.add(packId);
+
+    for (let reqPack of packData.requiredPacks || []) {
+      if (!validPacks.has(reqPack)) {
+        validPacks.add(reqPack);
+        await processPack(reqPack);
+      }
+    }
+
+    for (let incPack of packData.packsIncompatible || []) {
+      if (validPacks.has(incPack)) {
+        incompatiblePacks.add(incPack);
+        incompatiblePacks.add(packId);
+      }
+    }
+  };
+
+  for (let packId of packs) {
+    await processPack(packId);
+  }
+
+  return { validPacks: [...validPacks], incompatiblePacks: [...incompatiblePacks] };
+};
+
+/**
+ * Cria um novo servidor após validar packs.
+ */
 const addServer = async (req, res) => {
   try {
-    let { name, description, image, pack } = req.body;
-
-    // Verifica se o pack informado existe
-    const selectedPack = await dbService.findOne(Pack, { _id: pack });
-    if (!selectedPack) {
-      return res.validationError({ message: "Pacote não encontrado." });
+    let { name, description, image, packs } = req.body;
+    if (!Array.isArray(packs)) {
+      return res.validationError({ message: "O campo 'packs' deve ser um array." });
     }
 
-    // Obtém todos os packs necessários e incompatíveis
-    let allRequiredPacks = new Set();
-    let incompatiblePacks = new Set();
+    const { validPacks, incompatiblePacks } = await processPacks(packs);
 
-    const processPack = async (packId) => {
-      const packData = await dbService.findOne(Pack, { _id: packId });
-      if (packData) {
-        packData.requiredPacks.forEach((reqPack) => allRequiredPacks.add(reqPack.toString()));
-        packData.packsIncompatible.forEach((incPack) => incompatiblePacks.add(incPack.toString()));
-      }
-    };
-
-    await processPack(pack);
-
-    // Verifica se algum dos requiredPacks é incompatível
-    if ([...allRequiredPacks].some((id) => incompatiblePacks.has(id))) {
-      return res.validationError({ message: "Pacote contém incompatibilidades." });
+    if (incompatiblePacks.length > 0) {
+      return res.validationError({
+        message: "Os seguintes pacotes são incompatíveis: " + incompatiblePacks.join(', ')
+      });
     }
 
-    // Criação do servidor
     const newServer = new Server({
       name,
       description,
       image,
-      pack,
+      packs: validPacks,
       addedBy: req.user.id,
     });
 
     const createdServer = await dbService.create(Server, newServer);
     return res.success({ data: createdServer });
+
   } catch (error) {
     return res.internalServerError({ message: error.message });
   }
 };
 
 /**
+ * Atualiza um servidor e valida packs antes da atualização.
+ */
+const updateServer = async (req, res) => {
+  try {
+    let { packs } = req.body;
+    let serverId = req.params.id;
+
+    const server = await dbService.findOne(Server, { _id: serverId });
+    if (!server) {
+      return res.recordNotFound();
+    }
+
+    if (packs) {
+      if (!Array.isArray(packs)) {
+        return res.validationError({ message: "O campo 'packs' deve ser um array." });
+      }
+
+      const { validPacks, incompatiblePacks } = await processPacks(packs);
+      if (incompatiblePacks.length > 0) {
+        return res.validationError({
+          message: "Os seguintes pacotes são incompatíveis: " + incompatiblePacks.join(', ')
+        });
+      }
+
+      req.body.packs = validPacks;
+    }
+
+    let updatedServer = await dbService.updateOne(Server, { _id: serverId }, req.body);
+    return res.success({ data: updatedServer });
+
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
+  }
+};
+
+/**
+ * Atualiza múltiplos servidores garantindo a validação dos packs.
+ */
+const bulkUpdateServer = async (req, res) => {
+  try {
+    let { filter, data } = req.body;
+    if (!filter || !data) return res.badRequest();
+
+    if (data.packs) {
+      if (!Array.isArray(data.packs)) {
+        return res.validationError({ message: "O campo 'packs' deve ser um array." });
+      }
+
+      const { validPacks, incompatiblePacks } = await processPacks(data.packs);
+      if (incompatiblePacks.length > 0) {
+        return res.validationError({
+          message: "Os seguintes pacotes são incompatíveis: " + incompatiblePacks.join(', ')
+        });
+      }
+
+      data.packs = validPacks;
+    }
+
+    let updatedServer = await dbService.updateMany(Server, filter, data);
+    return res.success({ data: { count: updatedServer } });
+
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
+  }
+};
+
+/**
+ * Atualiza parcialmente um servidor garantindo validação dos packs.
+ */
+const partialUpdateServer = async (req, res) => {
+  try {
+    let { packs } = req.body;
+    let serverId = req.params.id;
+
+    if (!serverId) return res.badRequest({ message: 'ID é obrigatório.' });
+
+    const server = await dbService.findOne(Server, { _id: serverId });
+    if (!server) {
+      return res.recordNotFound();
+    }
+
+    if (packs) {
+      if (!Array.isArray(packs)) {
+        return res.validationError({ message: "O campo 'packs' deve ser um array." });
+      }
+
+      const { validPacks, incompatiblePacks } = await processPacks(packs);
+      if (incompatiblePacks.length > 0) {
+        return res.validationError({
+          message: "Os seguintes pacotes são incompatíveis: " + incompatiblePacks.join(', ')
+        });
+      }
+
+      req.body.packs = validPacks;
+    }
+
+    let updatedServer = await dbService.updateOne(Server, { _id: serverId }, req.body);
+    return res.success({ data: updatedServer });
+
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
+  }
+};
+/**
  * @description : create multiple documents of Server in mongodb collection.
  * @param {Object} req : request including body for creating documents.
  * @param {Object} res : response of created documents.
  * @return {Object} : created Servers. {status, message, data}
  */
-const bulkInsertServer = async (req,res)=>{
+const bulkInsertServer = async (req, res) => {
   try {
     if (req.body && (!Array.isArray(req.body.data) || req.body.data.length < 1)) {
       return res.badRequest();
     }
-    let dataToCreate = [ ...req.body.data ];
-    for (let i = 0;i < dataToCreate.length;i++){
+    let dataToCreate = [...req.body.data];
+    for (let i = 0; i < dataToCreate.length; i++) {
       dataToCreate[i] = {
         ...dataToCreate[i],
         addedBy: req.user.id
       };
     }
-    let createdServers = await dbService.create(Server,dataToCreate);
+    let createdServers = await dbService.create(Server, dataToCreate);
     createdServers = { count: createdServers ? createdServers.length : 0 };
-    return res.success({ data:{ count:createdServers.count || 0 } });
-  } catch (error){
-    return res.internalServerError({ message:error.message });
+    return res.success({ data: { count: createdServers.count || 0 } });
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
-    
+
 /**
  * @description : find all documents of Server from collection based on query and options.
  * @param {Object} req : request including option and query. {query, options : {page, limit, pagination, populate}, isCountOnly}
  * @param {Object} res : response contains data found from collection.
  * @return {Object} : found Server(s). {status, message, data}
  */
-const findAllServer = async (req,res) => {
+const findAllServer = async (req, res) => {
   try {
     let options = {};
     let query = {};
@@ -102,55 +229,55 @@ const findAllServer = async (req,res) => {
     if (typeof req.body.query === 'object' && req.body.query !== null) {
       query = { ...req.body.query };
     }
-    if (req.body.isCountOnly){
+    if (req.body.isCountOnly) {
       let totalRecords = await dbService.count(Server, query);
       return res.success({ data: { totalRecords } });
     }
     if (req.body && typeof req.body.options === 'object' && req.body.options !== null) {
       options = { ...req.body.options };
     }
-    let foundServers = await dbService.paginate( Server,query,options);
-    if (!foundServers || !foundServers.data || !foundServers.data.length){
-      return res.recordNotFound(); 
+    let foundServers = await dbService.paginate(Server, query, options);
+    if (!foundServers || !foundServers.data || !foundServers.data.length) {
+      return res.recordNotFound();
     }
-    return res.success({ data :foundServers });
-  } catch (error){
-    return res.internalServerError({ message:error.message });
+    return res.success({ data: foundServers });
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
-        
+
 /**
  * @description : find document of Server from table by id;
  * @param {Object} req : request including id in request params.
  * @param {Object} res : response contains document retrieved from table.
  * @return {Object} : found Server. {status, message, data}
  */
-const getServer = async (req,res) => {
+const getServer = async (req, res) => {
   try {
     let query = {};
     if (!ObjectId.isValid(req.params.id)) {
-      return res.validationError({ message : 'invalid objectId.' });
+      return res.validationError({ message: 'invalid objectId.' });
     }
     query._id = req.params.id;
     let options = {};
-    let foundServer = await dbService.findOne(Server,query, options);
-    if (!foundServer){
+    let foundServer = await dbService.findOne(Server, query, options);
+    if (!foundServer) {
       return res.recordNotFound();
     }
-    return res.success({ data :foundServer });
+    return res.success({ data: foundServer });
   }
-  catch (error){
-    return res.internalServerError({ message:error.message });
+  catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
-    
+
 /**
  * @description : returns total number of documents of Server.
  * @param {Object} req : request including where object to apply filters in req body 
  * @param {Object} res : response that returns total number of documents.
  * @return {Object} : number of documents. {status, message, data}
  */
-const getServerCount = async (req,res) => {
+const getServerCount = async (req, res) => {
   try {
     let where = {};
     let validateRequest = validation.validateFilterWithJoi(
@@ -163,145 +290,30 @@ const getServerCount = async (req,res) => {
     if (typeof req.body.where === 'object' && req.body.where !== null) {
       where = { ...req.body.where };
     }
-    let countedServer = await dbService.count(Server,where);
-    return res.success({ data : { count: countedServer } });
-  } catch (error){
-    return res.internalServerError({ message:error.message });
-  }
-};
-    
-/**
- * @description : update document of Server with data by id.
- * @param {Object} req : request including id in request params and data in request body.
- * @param {Object} res : response of updated Server.
- * @return {Object} : updated Server. {status, message, data}
- */
-
-/**
- * @description : Prevent updates that include incompatible packs.
- */
-const updateServer = async (req, res) => {
-  try {
-    let { pack } = req.body;
-    let serverId = req.params.id;
-
-    const server = await dbService.findOne(Server, { _id: serverId });
-    if (!server) {
-      return res.recordNotFound();
-    }
-
-    const selectedPack = await dbService.findOne(Pack, { _id: pack });
-    if (!selectedPack) {
-      return res.validationError({ message: "Pacote não encontrado." });
-    }
-
-    let allRequiredPacks = new Set();
-    let incompatiblePacks = new Set();
-
-    const processPack = async (packId) => {
-      const packData = await dbService.findOne(Pack, { _id: packId });
-      if (packData) {
-        packData.requiredPacks.forEach((reqPack) => allRequiredPacks.add(reqPack.toString()));
-        packData.packsIncompatible.forEach((incPack) => incompatiblePacks.add(incPack.toString()));
-      }
-    };
-
-    await processPack(pack);
-
-    if ([...allRequiredPacks].some((id) => incompatiblePacks.has(id))) {
-      return res.validationError({ message: "Pacote contém incompatibilidades." });
-    }
-
-    let updatedServer = await dbService.updateOne(Server, { _id: serverId }, { pack });
-    return res.success({ data: updatedServer });
+    let countedServer = await dbService.count(Server, where);
+    return res.success({ data: { count: countedServer } });
   } catch (error) {
     return res.internalServerError({ message: error.message });
   }
 };
 
-/**
- * @description : update multiple records of Server with data by filter.
- * @param {Object} req : request including filter and data in request body.
- * @param {Object} res : response of updated Servers.
- * @return {Object} : updated Servers. {status, message, data}
- */
-const bulkUpdateServer = async (req,res)=>{
+const softDeleteServer = async (req, res) => {
   try {
-    let filter = req.body && req.body.filter ? { ...req.body.filter } : {};
-    let dataToUpdate = {};
-    delete dataToUpdate['addedBy'];
-    if (req.body && typeof req.body.data === 'object' && req.body.data !== null) {
-      dataToUpdate = { 
-        ...req.body.data,
-        updatedBy : req.user.id
-      };
+    if (!req.params.id) {
+      return res.badRequest({ message: 'Insufficient request parameters! id is required.' });
     }
-    let updatedServer = await dbService.updateMany(Server,filter,dataToUpdate);
-    if (!updatedServer){
-      return res.recordNotFound();
-    }
-    return res.success({ data :{ count : updatedServer } });
-  } catch (error){
-    return res.internalServerError({ message:error.message }); 
-  }
-};
-    
-/**
- * @description : partially update document of Server with data by id;
- * @param {obj} req : request including id in request params and data in request body.
- * @param {obj} res : response of updated Server.
- * @return {obj} : updated Server. {status, message, data}
- */
-const partialUpdateServer = async (req,res) => {
-  try {
-    if (!req.params.id){
-      res.badRequest({ message : 'Insufficient request parameters! id is required.' });
-    }
-    delete req.body['addedBy'];
-    let dataToUpdate = {
-      ...req.body,
-      updatedBy:req.user.id,
-    };
-    let validateRequest = validation.validateParamsWithJoi(
-      dataToUpdate,
-      ServerSchemaKey.updateSchemaKeys
-    );
-    if (!validateRequest.isValid) {
-      return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });
-    }
-    const query = { _id:req.params.id };
-    let updatedServer = await dbService.updateOne(Server, query, dataToUpdate);
-    if (!updatedServer) {
-      return res.recordNotFound();
-    }
-    return res.success({ data:updatedServer });
-  } catch (error){
-    return res.internalServerError({ message:error.message });
-  }
-};
-/**
- * @description : deactivate document of Server from table by id;
- * @param {Object} req : request including id in request params.
- * @param {Object} res : response contains updated document of Server.
- * @return {Object} : deactivated Server. {status, message, data}
- */
-const softDeleteServer = async (req,res) => {
-  try {
-    if (!req.params.id){
-      return res.badRequest({ message : 'Insufficient request parameters! id is required.' });
-    }
-    let query = { _id:req.params.id };
+    let query = { _id: req.params.id };
     const updateBody = {
       isDeleted: true,
       updatedBy: req.user.id,
     };
     let updatedServer = await dbService.updateOne(Server, query, updateBody);
-    if (!updatedServer){
+    if (!updatedServer) {
       return res.recordNotFound();
     }
-    return res.success({ data:updatedServer });
-  } catch (error){
-    return res.internalServerError({ message:error.message }); 
+    return res.success({ data: updatedServer });
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
 
@@ -311,24 +323,24 @@ const softDeleteServer = async (req,res) => {
  * @param {Object} res : response contains deleted document.
  * @return {Object} : deleted Server. {status, message, data}
  */
-const deleteServer = async (req,res) => {
-  try { 
-    if (!req.params.id){
-      return res.badRequest({ message : 'Insufficient request parameters! id is required.' });
+const deleteServer = async (req, res) => {
+  try {
+    if (!req.params.id) {
+      return res.badRequest({ message: 'Insufficient request parameters! id is required.' });
     }
-    const query = { _id:req.params.id };
+    const query = { _id: req.params.id };
     const deletedServer = await dbService.deleteOne(Server, query);
-    if (!deletedServer){
+    if (!deletedServer) {
       return res.recordNotFound();
     }
-    return res.success({ data :deletedServer });
-        
+    return res.success({ data: deletedServer });
+
   }
-  catch (error){
-    return res.internalServerError({ message:error.message });
+  catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
-    
+
 /**
  * @description : delete documents of Server in table by using ids.
  * @param {Object} req : request including array of ids in request body.
@@ -341,14 +353,14 @@ const deleteManyServer = async (req, res) => {
     if (!ids || !Array.isArray(ids) || ids.length < 1) {
       return res.badRequest();
     }
-    const query = { _id:{ $in:ids } };
-    const deletedServer = await dbService.deleteMany(Server,query);
-    if (!deletedServer){
+    const query = { _id: { $in: ids } };
+    const deletedServer = await dbService.deleteMany(Server, query);
+    if (!deletedServer) {
       return res.recordNotFound();
     }
-    return res.success({ data :{ count :deletedServer } });
-  } catch (error){
-    return res.internalServerError({ message:error.message }); 
+    return res.success({ data: { count: deletedServer } });
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
 /**
@@ -357,25 +369,25 @@ const deleteManyServer = async (req, res) => {
  * @param {Object} res : response contains updated documents of Server.
  * @return {Object} : number of deactivated documents of Server. {status, message, data}
  */
-const softDeleteManyServer = async (req,res) => {
+const softDeleteManyServer = async (req, res) => {
   try {
     let ids = req.body.ids;
     if (!ids || !Array.isArray(ids) || ids.length < 1) {
       return res.badRequest();
     }
-    const query = { _id:{ $in:ids } };
+    const query = { _id: { $in: ids } };
     const updateBody = {
       isDeleted: true,
       updatedBy: req.user.id,
     };
-    let updatedServer = await dbService.updateMany(Server,query, updateBody);
+    let updatedServer = await dbService.updateMany(Server, query, updateBody);
     if (!updatedServer) {
       return res.recordNotFound();
     }
-    return res.success({ data:{ count :updatedServer } });
-        
-  } catch (error){
-    return res.internalServerError({ message:error.message }); 
+    return res.success({ data: { count: updatedServer } });
+
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
 
@@ -391,5 +403,5 @@ module.exports = {
   softDeleteServer,
   deleteServer,
   deleteManyServer,
-  softDeleteManyServer    
+  softDeleteManyServer
 };
