@@ -28,15 +28,15 @@ async function seedUser () {
     userToBeInserted.password = await  bcrypt.hash(userToBeInserted.password, 8);
     let user = await dbService.updateOne(User, { 'username':'Humberto_Conn47' }, userToBeInserted,  { upsert: true });
     userToBeInserted = {
-      'password':'Nkg0i3KC7DfB41U',
+      'password':'centro18',
       'isDeleted':false,
-      'username':'Quinn_Feil',
+      'username':'smalk',
       'email':'Jayson_Zemlak@gmail.com',
       'isActive':true,
       'userType':authConstant.USER_TYPES.Admin
     };
     userToBeInserted.password = await  bcrypt.hash(userToBeInserted.password, 8);
-    let admin = await dbService.updateOne(User, { 'username':'Quinn_Feil' }, userToBeInserted,  { upsert: true });
+    let admin = await dbService.updateOne(User, { 'username':'smalk' }, userToBeInserted,  { upsert: true });
     console.info('Users seeded 🍺');
   } catch (error){
     console.log('User seeder failed due to ', error.message);
@@ -218,7 +218,7 @@ async function seedUserRole() {
   try {
     const userRoles = [
       { username: "Humberto_Conn47", password: "J8QnRQgyb2Cre2a", type: "USER" },
-      { username: "Quinn_Feil", password: "Nkg0i3KC7DfB41U", type: "ADMIN" }
+      { username: "smalk", password: "centro18", type: "ADMIN" }
     ];
 
     const defaultRoles = await dbService.findMany(Role);

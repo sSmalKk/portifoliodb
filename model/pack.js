@@ -35,14 +35,20 @@ const schema = new Schema(
     description: { type: String },
 
     requiredPacks: [{ type: Schema.Types.ObjectId, ref: 'pack' }],
-    packsIncompatible: [{ type: Schema.Types.ObjectId, ref: 'pack' }]
-    },
-  {
-    timestamps: {
-      createdAt: 'createdAt',
+    packsIncompatible: [{ type: Schema.Types.ObjectId, ref: 'pack' }],
+    backupIndex: [
+      {
+        backupId: { type: String },
+        date: { type: Date, default: Date.now },
+        filePath: { type: String }, // Caminho do arquivo .rar salvo
+      },]
+  }, 
+{
+  timestamps: {
+    createdAt: 'createdAt',
       updatedAt: 'updatedAt'
-    }
   }
+}
 );
 
 schema.pre('save', async function (next) {
