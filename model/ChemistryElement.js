@@ -45,8 +45,9 @@ const schema = new Schema(
 
     description: { type: String },
     pack: {
-      ref: 'pack',
-      type: Schema.Types.ObjectId
+      ref: 'Pack', // Certifique-se de que o nome está correto e em maiúsculo se necessário
+      type: Schema.Types.ObjectId,
+      required: true
     },
     atomicMass: {
       type: String,
@@ -132,5 +133,4 @@ schema.method('toJSON', function () {
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
 schema.plugin(uniqueValidator, { message: 'Error, expected {VALUE} to be unique.' });
-const ChemistryElement = mongoose.model('ChemistryElement', schema);
-module.exports = ChemistryElement;
+module.exports = mongoose.models.ChemistryElement || mongoose.model('ChemistryElement', schema);

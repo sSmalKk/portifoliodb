@@ -28,7 +28,7 @@ const schema = new Schema(
     description: { type: String },
 
     pack: {
-      ref: 'pack',
+      ref: 'Pack',
       type: Schema.Types.ObjectId
     },
     parentId: {

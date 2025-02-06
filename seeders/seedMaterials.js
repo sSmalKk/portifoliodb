@@ -1,16 +1,19 @@
-const fs = require('fs');
-const mongoose = require('mongoose');
-const dbService = require('../utils/dbService');
-const MaterialModel = require('../model/material');
-const ChemistryElementModel = require('../model/elements');
+const fs = require("fs");
+const mongoose = require("mongoose");
+const dbService = require("../utils/dbService");
+const Material = require("../model/Material");
+const ChemistryElement = require("../model/ChemistryElement");
+const PackModel = require("../model/pack");
 
-// Função para converter IDs numéricos ou strings para ObjectId
-const convertToObjectId = (id) => new mongoose.Types.ObjectId(id.toString().padStart(24, '0'));
+// **Converter um número para ObjectId**
+const convertToObjectId = (num) => {
+  return new mongoose.Types.ObjectId(num.toString().padStart(24, "0"));
+};
 
-// Função para carregar MaterialRules.json
+// **Carregar regras de materiais de um JSON externo**
 const loadMaterialRules = (filePath) => {
   try {
-    const rulesData = fs.readFileSync(filePath, 'utf-8');
+    const rulesData = fs.readFileSync(filePath, "utf-8");
     return JSON.parse(rulesData);
   } catch (error) {
     console.error(`❌ Erro ao carregar MaterialRules.json: ${error.message}`);
@@ -18,7 +21,7 @@ const loadMaterialRules = (filePath) => {
   }
 };
 
-// Função para aplicar as regras de um material
+// **Aplicar regras personalizadas ao material**
 const applyRulesToMaterial = (material, rules) => {
   const materialRules = rules[material.symbol];
   if (!materialRules) return material;
@@ -32,21 +35,28 @@ const applyRulesToMaterial = (material, rules) => {
   return material;
 };
 
-// Função para gerar espectro de corpo negro (Gradiente Placeholder)
+// **Gerar espectro de corpo negro (Gradiente Placeholder)**
 const generateBlackBodySpectrum = (baseColor, minTemp, maxTemp) => {
-  const spectrum = [baseColor, "#FF4500", "#FFFFFF"]; // Gradiente simplificado
-  return spectrum;
+  return [baseColor, "#FF4500", "#FFFFFF"];
 };
 
+// **Sincronizar os materiais no pack global**
 const seedMaterials = async () => {
   try {
     console.log("🔄 Iniciando sincronização dos materiais...");
 
-    // Apagar materiais não verificados
-    await MaterialModel.deleteMany({ verified: false });
+    // 🔹 Criar ou buscar um único pack global para todos os materiais
+    let globalPack = await PackModel.findOne({ name: "Pack-Elementos" });
+    if (!globalPack) {
+      globalPack = await PackModel.create({
+        name: "Pack-Elementos",
+        description: "Pacote global contendo todos os materiais baseados nos elementos químicos",
+      });
+      console.log(`📦 Criado Pack Global: ${globalPack._id}`);
+    }
 
-    // Buscar todos os elementos disponíveis
-    const elements = await dbService.findMany(ChemistryElementModel, {});
+    // **Buscar todos os elementos disponíveis**
+    const elements = await dbService.findMany(ChemistryElement, {});
 
     if (!elements.length) {
       console.error("❌ Nenhum elemento encontrado.");
@@ -55,70 +65,88 @@ const seedMaterials = async () => {
 
     console.log(`🔍 ${elements.length} elementos encontrados.`);
 
-    // Carregar regras opcionais do arquivo MaterialRules.json
-    const materialRulesPath = './MaterialRules.json';
+    // **Carregar regras opcionais do arquivo MaterialRules.json**
+    const materialRulesPath = "./MaterialRules.json";
     const materialRules = fs.existsSync(materialRulesPath)
       ? loadMaterialRules(materialRulesPath)
       : {};
 
     for (const element of elements) {
-      const minTemperature = element.meltingPoint || 300; // Temperatura inicial
-      const maxTemperature = element.boilingPoint
-        ? element.boilingPoint + 2000 // Estimativa de plasma
-        : 10000;
+      console.log(`🔄 Processando: ${element.name}`);
 
-      const materialData = {
-        _id: convertToObjectId(element.atomicNumber),
-        name: element.name,
-        symbol: element.symbol,
-        elementId: convertToObjectId(element._id),
-        type: "element",
-        baseColors: [element.cpkHexColor || "#FFFFFF"],
-        properties: {
-          density: element.density || null,
-          meltingPoint: element.meltingPoint || null,
-          boilingPoint: element.boilingPoint || null,
-          standardState: element.standardState || "solid",
-        },
-        blackBodyConfig: {
-          minTemperature,
-          maxTemperature,
-          spectrum: generateBlackBodySpectrum(
-            element.cpkHexColor || "#FFFFFF",
-            minTemperature,
-            maxTemperature
-          ),
-        },
-        rules: [
-          {
-            condition: "temperatureChange",
-            parameters: {
-              minTemperature,
-              maxTemperature,
-            },
-            description: "Reage a alterações de temperatura.",
+      try {
+        if (!element._id || !element.atomicNumber) {
+          console.warn(`⚠️ Elemento inválido ignorado: ${element.name}`);
+          continue;
+        }
+
+        const minTemperature = element.meltingPoint || 300;
+        const maxTemperature = element.boilingPoint ? element.boilingPoint + 2000 : 10000;
+
+        const materialData = {
+          _id: convertToObjectId(element.atomicNumber),
+          name: element.name,
+          symbol: element.symbol,
+          elementId: element._id,
+          type: "element",
+          baseColors: element.cpkHexColor ? [element.cpkHexColor.toString()] : ["#FFFFFF"],
+          properties: {
+            density: element.density || null,
+            meltingPoint: element.meltingPoint || null,
+            boilingPoint: element.boilingPoint || null,
+            standardState: element.standardState || "solid",
           },
-        ],
-        verified: true,
-        updatedAt: new Date(),
-      };
+          blackBodyConfig: {
+            minTemperature,
+            maxTemperature,
+            spectrum: generateBlackBodySpectrum(
+              element.cpkHexColor || "#FFFFFF",
+              minTemperature,
+              maxTemperature
+            ),
+          },
+          rules: [
+            {
+              condition: "temperatureChange",
+              parameters: {
+                minTemperature,
+                maxTemperature,
+              },
+              description: "Reage a alterações de temperatura.",
+            },
+          ],
+          pack: globalPack._id, // ✅ Sempre garantindo que tenha um pack válido
+          verified: true,
+          updatedAt: new Date(),
+        };
 
-      // Aplicar regras personalizadas se existirem
-      const materialWithRules = applyRulesToMaterial(materialData, materialRules);
+        // **Aplicar regras personalizadas do JSON, se existirem**
+        const materialWithRules = applyRulesToMaterial(materialData, materialRules);
 
-      // Inserir ou atualizar material no banco
-      await MaterialModel.updateOne(
-        { symbol: materialWithRules.symbol },
-        materialWithRules,
-        { upsert: true }
-      );
+        // **Inserir ou atualizar material no banco**
+        await Material.updateOne(
+          { symbol: materialWithRules.symbol, pack: globalPack._id },
+          { $set: { ...materialWithRules } },
+          { upsert: true }
+        );
 
-      console.log(`✅ Material "${materialWithRules.name}" sincronizado.`);
+        console.log(`✅ Material "${materialWithRules.name}" sincronizado com pack: ${globalPack._id}`);
+      } catch (error) {
+        console.error(`❌ Erro ao processar ${element.name}: ${error.message}`);
+      }
     }
 
-    console.log("✅ Sincronização concluída.");
+    // **Remover materiais que não pertencem mais ao pack**
+    const validSymbols = elements.map((el) => el.symbol);
+    await dbService.deleteMany(Material, {
+      symbol: { $nin: validSymbols },
+      pack: globalPack._id, // 🔹 Removendo apenas os do pack correto
+    });
+
+    console.log("🗑️ Materiais extras removidos.");
+    console.log("✅ Sincronização de materiais concluída.");
   } catch (error) {
-    console.error(`❌ Erro durante o seed: ${error.message}`);
+    console.error(`❌ Erro durante a sincronização: ${error.message}`);
   }
 };
 

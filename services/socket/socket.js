@@ -1,100 +1,69 @@
-const { Server } = require("socket.io");
-const dbService = require("../../utils/dbService");
-const ServerModel = require("../../model/Server");
-const SocketData = require("../../model/SocketData");
-
-let started = false; // 🔹 Variável para controlar se o servidor pode iniciar
-
-async function tickUpdate(io, serverId) {
-  if (!started) {
-    console.log(`⏸ Tick cancelado: servidor ainda não iniciou.`);
-    return;
-  }
-
-  const server = await dbService.findOne(ServerModel, { _id: serverId });
-  if (!server || !server.tickEnabled) {
-    console.log(`⏸ Tick desativado no servidor ${serverId}.`);
-    return;
-  }
-
-  const connectedPlayers = await dbService.count(SocketData, { serverId });
-  if (connectedPlayers === 0) {
-    console.log(`⏸ Nenhum jogador online no servidor ${serverId}, tick pausado.`);
-    return;
-  }
-
-  const { tickOfDay, currentDay, inGameDate } = await getCurrentTickAndDate(server);
-
-  console.log(`🔄 Tick ${tickOfDay}/5000 - Dia ${currentDay} - Data: ${inGameDate.toISOString()} - Servidor: ${server.name}`);
-
-  await dbService.updateOne(ServerModel, { _id: serverId }, { globalTick: tickOfDay });
-
-  io.of("/game").emit("tick:update", { serverId, ticks: tickOfDay, day: currentDay, inGameDate });
-
-  await preUpdate(io, server, tickOfDay, currentDay, inGameDate);
-  await postUpdate(io, server, tickOfDay, currentDay, inGameDate);
-}
+const Entity = require("../../model/entity");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 module.exports = function (httpServer) {
-  const io = new Server(httpServer, { cors: { origin: "*" } });
+  const io = require("socket.io")(httpServer, { cors: { origin: "*" } });
 
-  io.on("connection", async (socket) => {
-    if (!started) {
-      console.log(`⚠️ Conexão recusada: servidor ainda não iniciou.`);
-      socket.emit("server:waiting", { message: "Servidor ainda está iniciando." });
-      socket.disconnect();
-      return;
-    }
+  const players = {}; // Armazena a posição dos jogadores em tempo real
 
-    console.log(`🎮 Jogador conectado: ${socket.id}`);
+  io.on("connection", (socket) => {
+    console.log("Player connected:", socket.id);
 
-    const { serverId } = socket.handshake.query;
-    if (!serverId) {
-      console.error("⚠️ Erro: Conexão sem serverId.");
-      socket.disconnect();
-      return;
-    }
+    socket.on("updatePosition", async ({ userId, position, rotation }) => {
+      if (!userId || !ObjectId.isValid(userId)) {
+        console.error("ID de usuário inválido:", userId);
+        return;
+      }
 
-    await dbService.create(SocketData, { socketId: socket.id, serverId });
+      players[userId] = { socketId: socket.id, position, rotation };
 
-    const connectedPlayers = await dbService.count(SocketData, { serverId });
-    if (connectedPlayers === 1) {
-      console.log(`▶️ Iniciando ticks para o servidor ${serverId}`);
-      await tickUpdate(io, serverId);
-    }
+      // Atualiza o banco de dados com a nova posição e rotação
+      await Entity.findOneAndUpdate(
+        { userId: new ObjectId(userId) },
+        { position, rotation },
+        { upsert: true }
+      );
 
-    socket.on("disconnect", async () => {
-      console.log(`❌ Jogador desconectado: ${socket.id}`);
-      await dbService.deleteOne(SocketData, { socketId: socket.id });
+      const visiblePlayers = [];
+      for (const [otherUserId, otherPlayer] of Object.entries(players)) {
+        if (otherUserId === userId) continue;
 
-      const remainingPlayers = await dbService.count(SocketData, { serverId });
-      if (remainingPlayers === 0) {
-        console.log(`⏸ Nenhum jogador online. Tick pausado no servidor ${serverId}.`);
+        const distance = Math.sqrt(
+          Math.pow(otherPlayer.position[0] - position[0], 2) +
+            Math.pow(otherPlayer.position[1] - position[1], 2) +
+            Math.pow(otherPlayer.position[2] - position[2], 2)
+        );
+
+        if (distance <= 100) {
+          visiblePlayers.push({
+            id: otherUserId,
+            position: otherPlayer.position,
+            rotation: otherPlayer.rotation,
+          });
+
+          const otherSocketId = otherPlayer.socketId;
+          if (otherSocketId) {
+            io.to(otherSocketId).emit("updateVisiblePlayers", [
+              ...(players[userId]
+                ? [{ id: userId, position, rotation }]
+                : []),
+            ]);
+          }
+        }
+      }
+
+      io.to(socket.id).emit("updateVisiblePlayers", visiblePlayers);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Player disconnected:", socket.id);
+      for (const userId in players) {
+        if (players[userId].socketId === socket.id) {
+          delete players[userId];
+          break;
+        }
       }
     });
   });
-
-  startServer(io);
 };
-
-async function startServer(io) {
-  console.log("🔄 Iniciando servidor...");
-
-  io.emit("server:init", { message: "Inicializando..." });
-  await delay(2000);
-
-  io.emit("server:preinit", { message: "Pré-inicialização..." });
-  await delay(2000);
-
-  io.emit("server:postinit", { message: "Pós-inicialização..." });
-  await delay(2000);
-
-  started = true;
-  console.log("✅ Servidor iniciado com sucesso!");
-
-  io.emit("server:ready", { message: "Servidor pronto para conexões!" });
-}
-
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}

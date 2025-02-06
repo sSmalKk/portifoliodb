@@ -26,7 +26,7 @@ const schema = new Schema(
     image: { type: String },
     description: { type: String },
     packs: [{
-      ref: 'pack',
+      ref: 'Pack',
       type: Schema.Types.ObjectId
     }],
     isDeleted: { type: Boolean },

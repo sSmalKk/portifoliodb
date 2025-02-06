@@ -27,7 +27,7 @@ const schema = new Schema(
 
     description: { type: String },
     pack: {
-      ref: 'pack',
+      ref: 'Pack',
       type: Schema.Types.ObjectId
     },
      isDeleted: { type: Boolean },
@@ -82,5 +82,4 @@ schema.method('toJSON', function () {
 });
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
-const Size = mongoose.model('Size', schema);
-module.exports = Size;
+module.exports = mongoose.models.Size || mongoose.model('Size', schema);

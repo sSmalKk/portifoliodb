@@ -12,7 +12,9 @@ const RouteRole = require('../model/routeRole');
 const UserRole = require('../model/userRole');
 const { replaceAll } = require('../utils/common');
 const dbService = require('../utils/dbService');
-
+const seedElements = require('./elementsSeed');
+const seedMaterials = require('./seedMaterials');
+const syncSizes = require('./seedSizes');
 /* seeds default users */
 async function seedUser () {
   try {
@@ -28,7 +30,7 @@ async function seedUser () {
     userToBeInserted.password = await  bcrypt.hash(userToBeInserted.password, 8);
     let user = await dbService.updateOne(User, { 'username':'Humberto_Conn47' }, userToBeInserted,  { upsert: true });
     userToBeInserted = {
-      'password':'centro18',
+      'password':'123',
       'isDeleted':false,
       'username':'smalk',
       'email':'Jayson_Zemlak@gmail.com',
@@ -288,6 +290,9 @@ async function seedData (allRegisterRoutes){
   await seedProjectRoutes(allRegisterRoutes);
   await seedRouteRole();
   await seedUserRole();
+  await seedElements();
+  await syncSizes();
+  await seedMaterials();
 
 };
 module.exports = seedData;
