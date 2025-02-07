@@ -6,7 +6,7 @@ services:
     user: root
     command: ["/bin/bash","-lc","npm i && npm start"]
     ports:
-      - '5000:5000'
+      - '2314:2314'
     depends_on:
       - mongodb
     working_dir: /home/node/app

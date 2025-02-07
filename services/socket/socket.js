@@ -1,69 +1,40 @@
-const Entity = require("../../model/entity");
-const mongoose = require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
+const { Server } = require("socket.io");
+const ChatManager = require("./chatManager");
+const PlayerManager = require("./playerManager");
 
 module.exports = function (httpServer) {
-  const io = require("socket.io")(httpServer, { cors: { origin: "*" } });
+  const io = new Server(httpServer, { cors: { origin: "*" } });
 
-  const players = {}; // Armazena a posição dos jogadores em tempo real
+  io.on("connection", async (socket) => {
+    console.log("🔗 Novo jogador conectado:", socket.id);
 
-  io.on("connection", (socket) => {
-    console.log("Player connected:", socket.id);
-
-    socket.on("updatePosition", async ({ userId, position, rotation }) => {
-      if (!userId || !ObjectId.isValid(userId)) {
-        console.error("ID de usuário inválido:", userId);
+    socket.on("joinInstance", async ({ userId, instanceId }) => {
+      if (!userId) {
+        console.error("❌ Conexão inválida: userId ausente");
         return;
       }
 
-      players[userId] = { socketId: socket.id, position, rotation };
+      console.log(`🔹 ${userId} ingressando na instância ${instanceId}`);
+      await ChatManager.joinChat(userId, instanceId);
+      await PlayerManager.initializeInstance(instanceId);
 
-      // Atualiza o banco de dados com a nova posição e rotação
-      await Entity.findOneAndUpdate(
-        { userId: new ObjectId(userId) },
-        { position, rotation },
-        { upsert: true }
-      );
+      socket.join(instanceId);
+      io.to(socket.id).emit("instanceJoined", { instanceId });
+    });
 
-      const visiblePlayers = [];
-      for (const [otherUserId, otherPlayer] of Object.entries(players)) {
-        if (otherUserId === userId) continue;
-
-        const distance = Math.sqrt(
-          Math.pow(otherPlayer.position[0] - position[0], 2) +
-            Math.pow(otherPlayer.position[1] - position[1], 2) +
-            Math.pow(otherPlayer.position[2] - position[2], 2)
-        );
-
-        if (distance <= 100) {
-          visiblePlayers.push({
-            id: otherUserId,
-            position: otherPlayer.position,
-            rotation: otherPlayer.rotation,
-          });
-
-          const otherSocketId = otherPlayer.socketId;
-          if (otherSocketId) {
-            io.to(otherSocketId).emit("updateVisiblePlayers", [
-              ...(players[userId]
-                ? [{ id: userId, position, rotation }]
-                : []),
-            ]);
-          }
-        }
-      }
-
+    socket.on("updatePosition", async ({ userId, position, rotation, entityId, instanceId }) => {
+      if (!userId || !instanceId) return;
+      const visiblePlayers = await PlayerManager.updatePosition(instanceId, { userId, position, rotation, entityId });
       io.to(socket.id).emit("updateVisiblePlayers", visiblePlayers);
     });
 
+    socket.on("chatMessage", async ({ userId, instanceId, message }) => {
+      if (!userId || !message || !instanceId) return;
+      io.to(instanceId).emit("chatMessage", { userId, message });
+    });
+
     socket.on("disconnect", () => {
-      console.log("Player disconnected:", socket.id);
-      for (const userId in players) {
-        if (players[userId].socketId === socket.id) {
-          delete players[userId];
-          break;
-        }
-      }
+      console.log("🔌 Jogador desconectado:", socket.id);
     });
   });
 };

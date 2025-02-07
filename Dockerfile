@@ -4,5 +4,5 @@ WORKDIR /home/node/app
 
 COPY . .
 RUN npm i
-EXPOSE 5000
+EXPOSE 2314
 CMD ["npm", "start"]

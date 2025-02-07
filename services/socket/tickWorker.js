@@ -16,7 +16,7 @@ parentPort.on("message", async ({ type, serverId }) => {
 
       const { tickOfDay, currentDay, inGameDate } = await getCurrentTickAndDate(server);
 
-      console.log(`🔄 Tick ${tickOfDay}/5000 - Dia ${currentDay} - ${server.name}`);
+      console.log(`🔄 Tick ${tickOfDay}/2314 - Dia ${currentDay} - ${server.name}`);
       await dbService.updateOne(ServerModel, { _id: serverId }, { globalTick: tickOfDay });
 
       parentPort.postMessage({
