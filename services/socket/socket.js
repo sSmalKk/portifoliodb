@@ -1,40 +1,52 @@
 const { Server } = require("socket.io");
-const ChatManager = require("./chatManager");
-const PlayerManager = require("./playerManager");
 
 module.exports = function (httpServer) {
-  const io = new Server(httpServer, { cors: { origin: "*" } });
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
 
-  io.on("connection", async (socket) => {
-    console.log("🔗 Novo jogador conectado:", socket.id);
+  const clients = new Map();
+  let tickRate = 0;
+  let lastUpdate = Date.now();
 
-    socket.on("joinInstance", async ({ userId, instanceId }) => {
-      if (!userId) {
-        console.error("❌ Conexão inválida: userId ausente");
-        return;
-      }
+  io.on("connection", (socket) => {
+    const clientInfo = { id: socket.id, browser: "unknown" };
 
-      console.log(`🔹 ${userId} ingressando na instância ${instanceId}`);
-      await ChatManager.joinChat(userId, instanceId);
-      await PlayerManager.initializeInstance(instanceId);
-
-      socket.join(instanceId);
-      io.to(socket.id).emit("instanceJoined", { instanceId });
+    socket.on("identify", (data) => {
+      clientInfo.browser = data.browser || "unknown";
+      clients.set(socket.id, clientInfo);
+      console.log(`[CONNECTED] ${socket.id} - ${clientInfo.browser}`);
     });
 
-    socket.on("updatePosition", async ({ userId, position, rotation, entityId, instanceId }) => {
-      if (!userId || !instanceId) return;
-      const visiblePlayers = await PlayerManager.updatePosition(instanceId, { userId, position, rotation, entityId });
-      io.to(socket.id).emit("updateVisiblePlayers", visiblePlayers);
-    });
-
-    socket.on("chatMessage", async ({ userId, instanceId, message }) => {
-      if (!userId || !message || !instanceId) return;
-      io.to(instanceId).emit("chatMessage", { userId, message });
+    socket.on("update", (data) => {
+      trackTickRate();
+      console.log(`[UPDATE] ${socket.id} - ${JSON.stringify(data)}`);
     });
 
     socket.on("disconnect", () => {
-      console.log("🔌 Jogador desconectado:", socket.id);
+      clients.delete(socket.id);
+      console.log(`[DISCONNECTED] ${socket.id}`);
     });
+
+    socket.emit("requestIdentification");
   });
+
+  function trackTickRate() {
+    const now = Date.now();
+    if (now - lastUpdate >= 1000) {
+      console.log(`[TICKRATE] Updates por segundo: ${tickRate}`);
+      tickRate = 0;
+      lastUpdate = now;
+    }
+    tickRate++;
+  }
+
+  setInterval(() => {
+    console.log(`[TICK MONITOR] Atualizações no último segundo: ${tickRate}`);
+  }, 1000);
+
+  return io;
 };
