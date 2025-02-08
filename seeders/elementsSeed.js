@@ -96,10 +96,19 @@ const seedElements = async () => {
     });
 
     console.log("🗑️ Elementos extras removidos.");
-    console.log("✅ Sincronização de elementos concluída.");
+    
+    // **⚡ Chamar a sincronização dos materiais após a sincronização dos elementos**
+    console.log("🔄 Chamando sincronização de materiais...");
+    await syncMaterials();  // <-- Chamada para garantir que os materiais sejam criados/atualizados
+
+    console.log("✅ Sincronização de elementos e materiais concluída.");
   } catch (error) {
     console.error(`❌ Erro no processo de sincronização: ${error.message}`);
   }
 };
 
+// 🔹 Importa a sincronização de materiais
+const syncMaterials = require("../controller/client/v1/syncMaterials");
+
 module.exports = seedElements;
+

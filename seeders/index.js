@@ -292,7 +292,6 @@ async function seedData (allRegisterRoutes){
   await seedUserRole();
   await seedElements();
   await syncSizes();
-  await seedMaterials();
 
 };
 module.exports = seedData;

@@ -9,7 +9,8 @@ const validation = require('../../../utils/validateRequest');
 const dbService = require('../../../utils/dbService');
 const ObjectId = require('mongodb').ObjectId;
 const utils = require('../../../utils/common');
-   
+const syncMaterials = require("./syncMaterials"); // 🔹 Importando sincronização
+
 /**
  * @description : create document of ChemistryElement in mongodb collection.
  * @param {Object} req : request including body for creating document.
@@ -21,22 +22,38 @@ const addChemistryElement = async (req, res) => {
     let dataToCreate = { ...req.body || {} };
     let validateRequest = validation.validateParamsWithJoi(
       dataToCreate,
-      ChemistryElementSchemaKey.schemaKeys);
+      ChemistryElementSchemaKey.schemaKeys
+    );
     if (!validateRequest.isValid) {
-      return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });
+      return res.validationError({
+        message: `Invalid values in parameters, ${validateRequest.message}`,
+      });
     }
+
     dataToCreate.addedBy = req.user.id;
     dataToCreate = new ChemistryElement(dataToCreate);
 
-    let checkUniqueFields = await utils.checkUniqueFieldsInDatabase(ChemistryElement,[ 'atomicNumber', 'atomicMass' ],dataToCreate,'INSERT');
-    if (checkUniqueFields.isDuplicate){
-      return res.validationError({ message : `${checkUniqueFields.value} already exists.Only unique ${checkUniqueFields.field} are allowed.` });
+    let checkUniqueFields = await utils.checkUniqueFieldsInDatabase(
+      ChemistryElement,
+      ["atomicNumber", "atomicMass"],
+      dataToCreate,
+      "INSERT"
+    );
+    if (checkUniqueFields.isDuplicate) {
+      return res.validationError({
+        message: `${checkUniqueFields.value} already exists. Only unique ${checkUniqueFields.field} are allowed.`,
+      });
     }
 
-    let createdChemistryElement = await dbService.create(ChemistryElement,dataToCreate);
-    return res.success({ data : createdChemistryElement });
+    let createdChemistryElement = await dbService.create(ChemistryElement, dataToCreate);
+    console.log(`✅ Chemistry Element criado: ${createdChemistryElement.name}`);
+
+    // 🔹 Sincroniza os materiais após criar um novo elemento
+    await syncMaterials();
+
+    return res.success({ data: createdChemistryElement });
   } catch (error) {
-    return res.internalServerError({ message:error.message }); 
+    return res.internalServerError({ message: error.message });
   }
 };
     
@@ -46,29 +63,40 @@ const addChemistryElement = async (req, res) => {
  * @param {Object} res : response of created documents.
  * @return {Object} : created ChemistryElements. {status, message, data}
  */
-const bulkInsertChemistryElement = async (req,res)=>{
+const bulkInsertChemistryElement = async (req, res) => {
   try {
     if (req.body && (!Array.isArray(req.body.data) || req.body.data.length < 1)) {
       return res.badRequest();
     }
-    let dataToCreate = [ ...req.body.data ];
-    for (let i = 0;i < dataToCreate.length;i++){
+    let dataToCreate = [...req.body.data];
+    for (let i = 0; i < dataToCreate.length; i++) {
       dataToCreate[i] = {
         ...dataToCreate[i],
-        addedBy: req.user.id
+        addedBy: req.user.id,
       };
     }
 
-    let checkUniqueFields = await utils.checkUniqueFieldsInDatabase(ChemistryElement,[ 'atomicNumber', 'atomicMass' ],dataToCreate,'BULK_INSERT');
-    if (checkUniqueFields.isDuplicate){
-      return res.validationError({ message : `${checkUniqueFields.value} already exists.Only unique ${checkUniqueFields.field} are allowed.` });
+    let checkUniqueFields = await utils.checkUniqueFieldsInDatabase(
+      ChemistryElement,
+      ["atomicNumber", "atomicMass"],
+      dataToCreate,
+      "BULK_INSERT"
+    );
+    if (checkUniqueFields.isDuplicate) {
+      return res.validationError({
+        message: `${checkUniqueFields.value} already exists. Only unique ${checkUniqueFields.field} are allowed.`,
+      });
     }
 
-    let createdChemistryElements = await dbService.create(ChemistryElement,dataToCreate);
-    createdChemistryElements = { count: createdChemistryElements ? createdChemistryElements.length : 0 };
-    return res.success({ data:{ count:createdChemistryElements.count || 0 } });
-  } catch (error){
-    return res.internalServerError({ message:error.message });
+    let createdChemistryElements = await dbService.create(ChemistryElement, dataToCreate);
+    console.log(`✅ ${createdChemistryElements.length} Chemistry Elements criados.`);
+
+    // 🔹 Sincroniza os materiais após inserção em massa
+    await syncMaterials();
+
+    return res.success({ data: { count: createdChemistryElements.length || 0 } });
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
     
@@ -167,36 +195,57 @@ const getChemistryElementCount = async (req,res) => {
  * @param {Object} res : response of updated ChemistryElement.
  * @return {Object} : updated ChemistryElement. {status, message, data}
  */
-const updateChemistryElement = async (req,res) => {
+const updateChemistryElement = async (req, res) => {
   try {
     let dataToUpdate = {
       ...req.body,
-      updatedBy:req.user.id,
+      updatedBy: req.user.id,
     };
     let validateRequest = validation.validateParamsWithJoi(
       dataToUpdate,
       ChemistryElementSchemaKey.updateSchemaKeys
     );
     if (!validateRequest.isValid) {
-      return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });
-    }
-    const query = { _id:req.params.id };
-
-    let checkUniqueFields = await utils.checkUniqueFieldsInDatabase(ChemistryElement,[ 'atomicNumber', 'atomicMass' ],dataToUpdate,'UPDATE', query);
-    if (checkUniqueFields.isDuplicate){
-      return res.validationError({ message : `${checkUniqueFields.value} already exists.Only unique ${checkUniqueFields.field} are allowed.` });
+      return res.validationError({
+        message: `Invalid values in parameters, ${validateRequest.message}`,
+      });
     }
 
-    let updatedChemistryElement = await dbService.updateOne(ChemistryElement,query,dataToUpdate);
-    if (!updatedChemistryElement){
+    const query = { _id: req.params.id };
+
+    let checkUniqueFields = await utils.checkUniqueFieldsInDatabase(
+      ChemistryElement,
+      ["atomicNumber", "atomicMass"],
+      dataToUpdate,
+      "UPDATE",
+      query
+    );
+    if (checkUniqueFields.isDuplicate) {
+      return res.validationError({
+        message: `${checkUniqueFields.value} already exists. Only unique ${checkUniqueFields.field} are allowed.`,
+      });
+    }
+
+    let updatedChemistryElement = await dbService.updateOne(
+      ChemistryElement,
+      query,
+      dataToUpdate
+    );
+
+    if (!updatedChemistryElement) {
       return res.recordNotFound();
     }
-    return res.success({ data :updatedChemistryElement });
-  } catch (error){
-    return res.internalServerError({ message:error.message });
+
+    console.log(`✅ Chemistry Element atualizado: ${updatedChemistryElement.name}`);
+
+    // 🔹 Sincroniza os materiais após atualizar um elemento
+    await syncMaterials();
+
+    return res.success({ data: updatedChemistryElement });
+  } catch (error) {
+    return res.internalServerError({ message: error.message });
   }
 };
-
 /**
  * @description : update multiple records of ChemistryElement with data by filter.
  * @param {Object} req : request including filter and data in request body.
@@ -301,24 +350,36 @@ const softDeleteChemistryElement = async (req,res) => {
  * @param {Object} res : response contains deleted document.
  * @return {Object} : deleted ChemistryElement. {status, message, data}
  */
-const deleteChemistryElement = async (req,res) => {
-  try { 
-    if (!req.params.id){
-      return res.badRequest({ message : 'Insufficient request parameters! id is required.' });
+const deleteChemistryElement = async (req, res) => {
+  try {
+    if (!req.params.id) {
+      return res.badRequest({ message: "Insufficient request parameters! id is required." });
     }
-    const query = { _id:req.params.id };
-    const deletedChemistryElement = await dbService.deleteOne(ChemistryElement, query);
-    if (!deletedChemistryElement){
+
+    // 🔹 Buscar o elemento antes de deletar para pegar o símbolo
+    const chemistryElement = await dbService.findOne(ChemistryElement, { _id: req.params.id });
+
+    if (!chemistryElement) {
       return res.recordNotFound();
     }
-    return res.success({ data :deletedChemistryElement });
-        
-  }
-  catch (error){
-    return res.internalServerError({ message:error.message });
+
+    // 🔹 Deletar o elemento químico
+    const deletedChemistryElement = await dbService.deleteOne(ChemistryElement, { _id: req.params.id });
+
+    if (!deletedChemistryElement) {
+      return res.recordNotFound();
+    }
+
+    // 🔹 Deletar material correspondente
+    await dbService.deleteOne(Material, { elementId: req.params.id });
+
+    console.log(`🗑️ Elemento '${chemistryElement.name}' e seu material foram removidos!`);
+
+    return res.success({ data: deletedChemistryElement });
+  } catch (error) { 
+    return res.internalServerError({ message: error.message });
   }
 };
-    
 /**
  * @description : delete documents of ChemistryElement in table by using ids.
  * @param {Object} req : request including array of ids in request body.
