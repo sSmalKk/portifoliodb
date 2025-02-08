@@ -43,6 +43,7 @@ const schema = new Schema(
     name:{ type:String },
 
     image:{ type:String },
+    model3D: { type: String }, // Caminho para o modelo 3D
 
     description:{ type:String }, 
     pack: {

@@ -1,47 +1,31 @@
 /**
  * fileUploadController.js
- * @description :: exports all method related file upload
+ * @description :: exports all methods related to file upload
  */
 
 const fs = require('fs');
 const path = require('path');
 const formidable = require('formidable');
-const validUrl = require('valid-url');
 
 let defaultDirectory = 'public/assets';
 let allowedFileTypes = [
-  'png',
-  'jpeg',
-  'jpg',
-  'gif',
-  'pdf',
-  'doc',
-  'docx',
-  'msword',
-  'vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'xls',
-  'xlsx',
-  'vnd.ms-excel',
-  'json',
-  'x-msdos-program',
-  'x-msdownload',
-  'exe',
-  'x-ms-dos-executable'
+  'png', 'jpeg', 'jpg', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx',
+  'msword', 'vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'vnd.ms-excel', 'json', 'x-msdos-program', 'x-msdownload', 'exe',
+  'x-ms-dos-executable', 'glb', 'glbx' // Suporte para modelos 3D
 ];
-let maxFileSize = 5; //In Megabyte
+let maxFileSize = 5; // Em Megabytes (MB)
 
 /**
- * @description : uploads file using formidable.
- * @param {Object} req : request of file upload API
- * @param {Object} res : response of file upload API.
- * @return {Object} : response of file upload. {status, message, data}
+ * @description : Upload de arquivos usando `formidable`.
+ * @param {Object} req : Requisição da API.
+ * @param {Object} res : Resposta da API.
  */
 const upload = async (req, res) => {
   try {
-    // Configuração do Formidable
     const form = new formidable.IncomingForm({
       multiples: true,
-      maxFileSize: 5 * 1024 * 1024, // 5 MB
+      maxFileSize: maxFileSize * 1024 * 1024, // Converte MB para bytes
     });
 
     form.parse(req, async (error, fields, files) => {
@@ -55,12 +39,7 @@ const upload = async (req, res) => {
       }
 
       const fileArray = Array.isArray(files.files) ? files.files : [files.files];
-      const uploadResults = [];
-
-      for (const file of fileArray) {
-        const uploadResult = await uploadFiles(file, fields);
-        uploadResults.push(uploadResult);
-      }
+      const uploadResults = await Promise.all(fileArray.map((file) => uploadFiles(file, fields)));
 
       return res.status(200).json({
         message: "Upload concluído com sucesso.",
@@ -73,118 +52,74 @@ const upload = async (req, res) => {
   }
 };
 
-
 /**
- * @description : create directory to specified path
- * @param {string} directoryPath : location where directory will be created
- * @return {boolean} : returns true if directory is created or false
+ * @description : Cria diretório se não existir.
+ * @param {string} directoryPath : Caminho do diretório.
+ * @return {Promise<boolean>} : Retorna true se criado com sucesso.
  */
 const makeDirectory = async (directoryPath) => {
-
-  if (!fs.existsSync(directoryPath)) {
-    fs.promises.mkdir(directoryPath, { recursive: true }, (error) => {
-      if (error) {
-        return false;
-      };
-      return true;
-    });
+  try {
+    await fs.promises.mkdir(directoryPath, { recursive: true });
+    return true;
+  } catch (error) {
+    console.error("Erro ao criar diretório:", error);
+    return false;
   }
-  return true;
 };
 
 /**
- * @description : upload files
- * @param {Object} file : file to upload
- * @param {Object} fields : fields for file
- * @param {number} fileCount : total number of files to upload
- * @return {Object} : response for file upload
+ * @description : Upload de arquivos.
+ * @param {Object} file : Arquivo enviado.
+ * @param {Object} fields : Campos do formulário.
+ * @return {Promise<Object>} : Resposta do upload.
  */
-const uploadFiles = async  (file, fields, fileCount) => {
+const uploadFiles = async (file, fields) => {
+  const tempPath = file.filepath;
+  const fileName = file.originalFilename;
+  let extension = path.extname(fileName).slice(1).toLowerCase(); // Remove o ponto e converte para minúsculas
+  const fileType = file.mimetype;
 
-  let tempPath = file.filepath;
-  let unlink;
-  let fileName = file.originalFilename;
-
-  let extension = path.extname(file.originalFilename);
-  extension = extension.split('.').pop();
-
-  fileType = file.mimetype;
-
-  if (allowedFileTypes.length == 0 || !allowedFileTypes.includes(extension)) {
-    return {
-      status: false,
-      message: 'Filetype not allowed.'
-    };
+  if (!allowedFileTypes.includes(extension)) {
+    return { status: false, message: "Tipo de arquivo não permitido." };
   }
 
-  // Check File Size
-  const fileSize = ((file.size / 1024) / 1024);
-  if (maxFileSize < fileSize) {
-    return {
-      status: false,
-      message: `Allow file size upto ${maxFileSize} MB.`
-    };
+  const fileSizeMB = file.size / (1024 * 1024);
+  if (fileSizeMB > maxFileSize) {
+    return { status: false, message: `Tamanho máximo permitido é ${maxFileSize} MB.` };
   }
 
-  //Create New path
-  let newPath = defaultDirectory + '/' + new Date().getTime() + path.extname(file.originalFilename);
+  let newPath = path.join(defaultDirectory, `${Date.now()}${path.extname(fileName)}`);
 
-  //Create Requested Directory,if given in request parameter.
-  if (fields && fields.folderName) {
-    let newDir = defaultDirectory + '/' + fields.folderName;
-    const createDir = await makeDirectory(newDir);
-    if (createDir) {
-      if (fields.fileName) {
-        newPath = newDir + '/' + fields.fileName + '-' + fileCount + path.extname(file.originalFilename);
-        fileName = fields.fileName;
-      }
+  if (fields.folderName) {
+    let newDir = path.join(defaultDirectory, fields.folderName);
+    if (await makeDirectory(newDir)) {
+      newPath = path.join(newDir, `${fields.fileName || Date.now()}${path.extname(fileName)}`);
     }
   }
-  else if (fields && fields.fileName) {
-    newPath = defaultDirectory + '/' + fields.fileName + '-' + fileCount + path.extname(file.originalFilename);
-    fileName = fields.fileName;
-  }
-  
-  const response = await new Promise(async (resolve, reject) => {
-    fs.readFile(tempPath, function (error, data) {
-      fs.writeFile(newPath, data, async function (error) {
-  
-        //Remove file from temp
-        unlink = await unlinkFile(tempPath);
-  
-        if (unlink.status == false) {
-          reject(unlink);
-        } else {
-          resolve({
-            status: true,
-            message: 'File upload successfully.',
-            data: '/' + newPath
-          });
-        }
-      });
-    });
-  });
 
-  return response;
+  try {
+    await fs.promises.copyFile(tempPath, newPath);
+    await unlinkFile(tempPath); // Remove arquivo temporário
+
+    return { status: true, message: "Upload realizado com sucesso.", data: "/" + newPath.replace(/\\/g, "/") };
+  } catch (error) {
+    console.error("Erro ao salvar arquivo:", error);
+    return { status: false, message: "Erro ao salvar o arquivo." };
+  }
 };
 
 /**
- * @description : unlink(delete) file from specified path
- * @param {string} path : location of file 
- * @return {Object} : return unlink file status {status, message}
+ * @description : Remove arquivo temporário.
+ * @param {string} filePath : Caminho do arquivo.
  */
-const unlinkFile = async (path) => {
-
-  fs.unlink(path, function (error) {
-    if (error) {
-      return {
-        status: false,
-        message: error.message
-      };
-    }
-  });
-
-  return { status: true };
+const unlinkFile = async (filePath) => {
+  try {
+    await fs.promises.unlink(filePath);
+    return { status: true };
+  } catch (error) {
+    console.error("Erro ao excluir arquivo:", error);
+    return { status: false, message: error.message };
+  }
 };
 
 module.exports = { upload };
