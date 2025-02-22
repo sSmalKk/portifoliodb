@@ -1,27 +1,15 @@
 /**
  * EntityBody.js
- * @description :: model of a database collection EntityBody
+ * @description :: Modelo para representar um corpo composto por várias partes
  */
 
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 let idValidator = require('mongoose-id-validator');
-const myCustomLabels = {
-  totalDocs: 'itemCount',
-  docs: 'data',
-  limit: 'perPage',
-  page: 'currentPage',
-  nextPage: 'next',
-  prevPage: 'prev',
-  totalPages: 'pageCount',
-  pagingCounter: 'slNo',
-  meta: 'paginator',
-};
-mongoosePaginate.paginate.options = { customLabels: myCustomLabels };
+
 const Schema = mongoose.Schema;
 const schema = new Schema(
   {
-
     isDeleted: { type: Boolean },
 
     isActive: { type: Boolean },
@@ -39,48 +27,19 @@ const schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'user'
     },
-    name: { type: String },
+    name: { type: String, required: true },
 
     image: { type: String },
-
+    model3D: { type: String }, // Caminho para o modelo 3D
+    structure: { type: [Schema.Types.Mixed], default: [] }, // Permite objetos na estrutura
+    texture: { type: String },
     description: { type: String },
-    pack: {
-      ref: 'Pack',
-      type: Schema.Types.ObjectId
-    },
-  }
-  , {
-    timestamps: {
-      createdAt: 'createdAt',
-      updatedAt: 'updatedAt'
-    }
-  }
+    pack: { type: Schema.Types.ObjectId, ref: 'Pack' },
+
+  },
+  { timestamps: true }
 );
-schema.pre('save', async function (next) {
-  this.isDeleted = false;
-  this.isActive = true;
-  next();
-});
 
-schema.pre('insertMany', async function (next, docs) {
-  if (docs && docs.length) {
-    for (let index = 0; index < docs.length; index++) {
-      const element = docs[index];
-      element.isDeleted = false;
-      element.isActive = true;
-    }
-  }
-  next();
-});
-
-schema.method('toJSON', function () {
-  const {
-    _id, __v, ...object
-  } = this.toObject({ virtuals: true });
-  object.id = _id;
-
-  return object;
-});
 schema.plugin(mongoosePaginate);
 schema.plugin(idValidator);
 const EntityBody = mongoose.model('EntityBody', schema);

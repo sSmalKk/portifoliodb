@@ -12,7 +12,7 @@ let allowedFileTypes = [
   'png', 'jpeg', 'jpg', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx',
   'msword', 'vnd.openxmlformats-officedocument.wordprocessingml.document',
   'vnd.ms-excel', 'json', 'x-msdos-program', 'x-msdownload', 'exe',
-  'x-ms-dos-executable', 'glb', 'glbx' // Suporte para modelos 3D
+  'x-ms-dos-executable', 'glb', 'gltf', 'obj' // Suporte para modelos 3D
 ];
 let maxFileSize = 5; // Em Megabytes (MB)
 

@@ -14,6 +14,7 @@ router.use(require('./MaterialRoutes'));
 router.use(require('./ChemistryElementRoutes'));
 router.use(require('./entityRoutes'));
 router.use(require('./EntityPartRoutes'));
+router.use(require('./EntityOrganRoutes'));
 router.use(require('./EntityBodyRoutes'));
 router.use(require('./langRoutes'));
 router.use(require('./CommentRoutes'));

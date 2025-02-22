@@ -11,6 +11,7 @@ let Material = require('../model/Material');
 let ChemistryElement = require('../model/ChemistryElement');
 let Entity = require('../model/entity');
 let EntityPart = require('../model/EntityPart');
+let EntityOrgan = require('../model/EntityOrgan');
 let EntityBody = require('../model/EntityBody');
 let Lang = require('../model/lang');
 let Comment = require('../model/Comment');
@@ -103,6 +104,14 @@ const deleteEntityPart = async (filter) =>{
 const deleteEntityBody = async (filter) =>{
   try {
     let response  = await dbService.deleteMany(EntityBody,filter);
+    return response;
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
+const deleteEntityOrgan = async (filter) =>{
+  try {
+    let response  = await dbService.deleteMany(EntityOrgan,filter);
     return response;
   } catch (error){
     throw new Error(error.message);
@@ -239,7 +248,9 @@ const deleteUser = async (filter) =>{
 
       const EntityBodyFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const EntityBodyCnt = await dbService.deleteMany(EntityBody,EntityBodyFilter);
-
+      const EntityOrganFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const EntityOrganCnt = await dbService.deleteMany(EntityOrgan,EntityOrganFilter);
+      
       const langFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const langCnt = await dbService.deleteMany(Lang,langFilter);
 
@@ -287,6 +298,7 @@ const deleteUser = async (filter) =>{
         entity :entityCnt,
         EntityPart :EntityPartCnt,
         EntityBody :EntityBodyCnt,
+        EntityOrgan :EntityOrganCnt,
         lang :langCnt,
         Comment :CommentCnt,
         Chat_group :Chat_groupCnt,
@@ -500,6 +512,14 @@ const countEntityBody = async (filter) =>{
     throw new Error(error.message);
   }
 };
+const countEntityOrgan = async (filter) =>{
+  try {
+    const EntityOrgan =  await dbService.count(EntityOrgan,filter);
+    return { EntityOrgan : EntityOrganCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
 
 const countLang = async (filter) =>{
   try {
@@ -626,7 +646,9 @@ const countUser = async (filter) =>{
 
       const EntityBodyFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const EntityBodyCnt =  await dbService.count(EntityBody,EntityBodyFilter);
-
+      const EntityOrganFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
+      const EntityOrganCnt =  await dbService.count(EntityOrgan,EntityOrganFilter);
+      
       const langFilter = { $or: [{ addedBy : { $in : user } },{ updatedBy : { $in : user } }] };
       const langCnt =  await dbService.count(Lang,langFilter);
 
@@ -672,6 +694,7 @@ const countUser = async (filter) =>{
         ChemistryElement : ChemistryElementCnt,
         entity : entityCnt,
         EntityPart : EntityPartCnt,
+        EntityOrgan : EntityOrganCnt,
         EntityBody : EntityBodyCnt,
         lang : langCnt,
         Comment : CommentCnt,
@@ -879,6 +902,14 @@ const softDeleteEntityBody = async (filter,updateBody) =>{
   }
 };
 
+const softDeleteEntityOrgan = async (filter,updateBody) =>{  
+  try {
+    const EntityOrganCnt =  await dbService.updateMany(EntityOrgan,filter);
+    return { EntityOrgan : EntityOrganCnt };
+  } catch (error){
+    throw new Error(error.message);
+  }
+};
 const softDeleteLang = async (filter,updateBody) =>{  
   try {
     const langCnt =  await dbService.updateMany(Lang,filter);
@@ -1006,7 +1037,9 @@ const softDeleteUser = async (filter,updateBody) =>{
 
       const EntityBodyFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
       const EntityBodyCnt = await dbService.updateMany(EntityBody,EntityBodyFilter,updateBody);
-
+      const EntityOrganFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
+      const EntityOrganCnt = await dbService.updateMany(EntityOrgan,EntityOrganFilter,updateBody);
+      
       const langFilter = { '$or': [{ addedBy : { '$in' : user } },{ updatedBy : { '$in' : user } }] };
       const langCnt = await dbService.updateMany(Lang,langFilter,updateBody);
 
@@ -1053,6 +1086,7 @@ const softDeleteUser = async (filter,updateBody) =>{
         ChemistryElement :ChemistryElementCnt,
         entity :entityCnt,
         EntityPart :EntityPartCnt,
+        EntityOrgan :EntityOrganCnt,
         EntityBody :EntityBodyCnt,
         lang :langCnt,
         Comment :CommentCnt,
@@ -1193,6 +1227,7 @@ module.exports = {
   deleteChemistryElement,
   deleteEntity,
   deleteEntityPart,
+  deleteEntityOrgan,
   deleteEntityBody,
   deleteLang,
   deleteComment,
@@ -1218,6 +1253,7 @@ module.exports = {
   countEntity,
   countEntityPart,
   countEntityBody,
+  countEntityOrgan,
   countLang,
   countComment,
   countChat_group,
@@ -1242,6 +1278,7 @@ module.exports = {
   softDeleteEntity,
   softDeleteEntityPart,
   softDeleteEntityBody,
+  softDeleteEntityOrgan,
   softDeleteLang,
   softDeleteComment,
   softDeleteChat_group,
